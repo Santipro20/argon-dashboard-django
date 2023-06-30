@@ -11258,7 +11258,7 @@ a.btn-icon-only {
 
 .accordion .card-header[aria-expanded="true"] .heading {
   color: #005347; }
-
+ 
 .main-content {
   position: relative; }
   .main-content .navbar-top {
@@ -13022,9 +13022,10 @@ textarea[resize="horizontal"] {
   .g-sidenav-pinned .sidenav.fixed-right + .main-content {
     margin-right: 250px; } }
 
+
 .sidenav {
   z-index: 1050;
-  transition: all 0.4s ease; }
+  transition: all 0.4s ease;}
   @media (min-width: 1200px) {
     .sidenav:hover {
       max-width: 250px; }
@@ -13084,6 +13085,7 @@ textarea[resize="horizontal"] {
   left: 50%;
   transform: translateX(-50%);
 }
+
 
 @media (min-width: 768px) {
   .nav-item .nav-link.active.active-pro {
