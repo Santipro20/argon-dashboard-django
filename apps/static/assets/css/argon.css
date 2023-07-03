@@ -2539,6 +2539,7 @@ input[type="button"].btn-block {
   .dropdown-toggle:empty::after {
     margin-left: 0; }
 
+    
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -5168,7 +5169,7 @@ button.bg-dark:focus {
   background-color: #0a0c0d !important; }
 
 .bg-default {
-  background-color: #172b4d !important; }
+  background-color: #F7FAFE !important; }
 
 a.bg-default:hover, a.bg-default:focus,
 button.bg-default:hover,
@@ -5401,8 +5402,6 @@ button.bg-darker:focus {
     display: inline-flex !important; } }
 
 @media (min-width: 1200px) {
-  .d-xl-none {
-    display: none !important; }
   .d-xl-inline {
     display: inline !important; }
   .d-xl-inline-block {
@@ -11260,7 +11259,13 @@ a.btn-icon-only {
   color: #005347; }
  
 .main-content {
-  position: relative; }
+  position: relative;}
+
+  .main-content.collapsed {
+    position: relative; 
+    margin-left: 70px;
+  }
+
   .main-content .navbar-top {
     padding-left: 0 !important;
     padding-right: 0 !important; }
@@ -13004,6 +13009,7 @@ textarea[resize="horizontal"] {
 
 .sidenav.fixed-left + .main-content {
   margin-left: 62px;
+  width: calc(100% - 62px); 
   transition: all 0.15s ease; }
   @media (prefers-reduced-motion: reduce) {
     .sidenav.fixed-left + .main-content {
@@ -13011,6 +13017,7 @@ textarea[resize="horizontal"] {
 
 .sidenav.fixed-right + .main-content {
   margin-right: 62px;
+  width: calc(100% - 62px);
   transition: all 0.15s ease; }
   @media (prefers-reduced-motion: reduce) {
     .sidenav.fixed-right + .main-content {
@@ -13023,6 +13030,7 @@ textarea[resize="horizontal"] {
     margin-right: 250px; } }
 
 
+  
 .sidenav {
   z-index: 1050;
   transition: all 0.4s ease;}
@@ -13060,12 +13068,11 @@ textarea[resize="horizontal"] {
   .g-sidenav-pinned .sidenav .navbar-heading {
     display: block; }
 
-/* Agrega una clase para representar el estado contraído */
+
 .sidenav.collapsed {
   max-width: 70px !important;
 }
 
-/* Estilos para los logotipos en la barra lateral colapsada */
 .sidenav.collapsed .navbar-brand {
   display: none;
 }
@@ -13075,7 +13082,6 @@ textarea[resize="horizontal"] {
   padding: 1.5rem;
 }
 
-/* Estilo para la barra lateral contraída */
 .sidenav.collapsed .nav-link-text {
   display: none;
 }
@@ -13085,7 +13091,6 @@ textarea[resize="horizontal"] {
   left: 50%;
   transform: translateX(-50%);
 }
-
 
 @media (min-width: 768px) {
   .nav-item .nav-link.active.active-pro {
