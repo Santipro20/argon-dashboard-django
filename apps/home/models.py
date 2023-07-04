@@ -1405,3 +1405,4 @@ class ZonePricing(models.Model):
     class Meta:
         managed = False
         db_table = 'zone_pricing'
+# Create your models here.
