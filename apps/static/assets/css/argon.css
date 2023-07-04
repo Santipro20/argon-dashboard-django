@@ -4728,6 +4728,8 @@ a.close.disabled {
   .modal-xl {
     max-width: 1140px; } }
 
+
+
 .tooltip {
   position: absolute;
   z-index: 1070;
@@ -5340,6 +5342,7 @@ button.bg-darker:focus {
 
 .d-inline-flex {
   display: inline-flex !important; }
+
 
 @media (min-width: 576px) {
   .d-sm-none {
@@ -11265,7 +11268,7 @@ a.btn-icon-only {
     position: relative; 
     margin-left: 70px;
   }
-
+  
   .main-content .navbar-top {
     padding-left: 0 !important;
     padding-right: 0 !important; }
@@ -13013,7 +13016,7 @@ textarea[resize="horizontal"] {
   transition: all 0.15s ease; }
   @media (prefers-reduced-motion: reduce) {
     .sidenav.fixed-left + .main-content {
-      transition: none; } }
+      transition:  all 0.15s ease; } }
 
 .sidenav.fixed-right + .main-content {
   margin-right: 62px;
@@ -13021,7 +13024,7 @@ textarea[resize="horizontal"] {
   transition: all 0.15s ease; }
   @media (prefers-reduced-motion: reduce) {
     .sidenav.fixed-right + .main-content {
-      transition: none; } }
+      transition:  all 0.15s ease; } }
 
 @media (min-width: 1200px) {
   .g-sidenav-pinned .sidenav.fixed-left + .main-content {
@@ -13056,7 +13059,7 @@ textarea[resize="horizontal"] {
   transition: all 0.15s ease; }
   @media (prefers-reduced-motion: reduce) {
     .g-sidenav-show .sidenav .nav-item .collapse {
-      transition: none; } }
+      transition:  all 0.15s ease; } }
 
 .g-sidenav-show .sidenav .nav-link-text {
   transition: 0.3s ease;
@@ -13117,7 +13120,7 @@ textarea[resize="horizontal"] {
   @media (prefers-reduced-motion: reduce) {
     .sidenav-toggler-inner,
     .sidenav-toggler-line {
-      transition: none; } }
+      transition:  all 0.15s ease; } }
 
 .sidenav-toggler-inner {
   position: relative; }
@@ -13133,7 +13136,7 @@ textarea[resize="horizontal"] {
     transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
     @media (prefers-reduced-motion: reduce) {
       .sidenav-toggler-inner:before {
-        transition: none; } }
+        transition:  all 0.15s ease; } }
 
 .sidenav-toggler-line {
   height: 2px;
