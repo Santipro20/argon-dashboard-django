@@ -35,9 +35,10 @@
 
 </head>
 
-<body class="bg-default">
+<body class="bg-default collapsed">
 
-  <div class="main-content collapsed">
+  <div class="wrapper">
+  <div class="main-content">
 
     {% include "includes/navigation-fullscreen.html" %}
 
@@ -65,6 +66,7 @@
         </svg>
       </div>
     </div>
+  </div>
     
     {% block content %}{% endblock content %}
 

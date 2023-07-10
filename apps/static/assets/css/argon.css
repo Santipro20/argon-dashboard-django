@@ -11262,14 +11262,6 @@ a.btn-icon-only {
 
 .accordion .card-header[aria-expanded="true"] .heading {
   color: #005347; }
- 
-.main-content {
-  margin-left: 250px;
-  transition: margin-left 0.3s ease;}
-
-.collapsed + .main-content  {
-    margin-left: 70px;
-}
 
   .main-content .navbar-top {
     padding-left: 0 !important;
@@ -12242,6 +12234,7 @@ textarea[resize="horizontal"] {
 .modal-dark .modal-title {
   color: #fff; }
 
+
 .modal-dark .modal-header,
 .modal-dark .modal-footer {
   border-color: rgba(255, 255, 255, 0.075); }
@@ -13020,8 +13013,6 @@ textarea[resize="horizontal"] {
     .sidenav.fixed-left + .main-content {
       transition:  all 0.15s ease; } }
 
-      
-
 
 .sidenav.fixed-right + .main-content {
   margin-right: 62px;
@@ -13074,28 +13065,60 @@ textarea[resize="horizontal"] {
   .g-sidenav-pinned .sidenav .navbar-heading {
     display: block; }
 
-.collapsed {
-  max-width: 70px !important;
-}
+    .wrapper {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      transition: all 0.2s ease;
+      margin-left: 250px;
+    }
+    
+    .sidenav {
+      width: 250px;
+      transition: all 0.2s ease;
+    }
+    
+    .sidenav.collapsed {
+      width: 70px;
+    }
+    
+    .sidenav.collapsed + .main-content {
+      margin-left: 70px;
+    }
+    
+    body.collapsed .sidenav {
+      width: 70px;
+    }
+    
+    body.collapsed .main-content {
+      margin-left: 70px;
+    }
+    
+    @media (max-width: 767.98px) {
+      .sidenav {
+        width: 70px;
+      }
+    
+      .sidenav.collapsed + .main-content {
+        margin-left: 70px;
+      }
+    
+      body.collapsed .sidenav {
+        width: 70px;
+      }
+    
+      body.collapsed .main-content {
+        margin-left: 70px;
+      }
+    }
 
-.collapsed + .sidenav .navbar-brand {
-  display: none;
-}
-.collapsed + .sidenav .navbar-brand-mini {
-  display: block;
-  text-align: center;
-  padding: 1.5rem;
-}
-
-.collapsed + .sidenav .nav-link-text {
-  display: none;
-}
-
-.collapsed + .sidenav .navbar-toggler {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
+    .navbar-toggler.ml-auto {
+      margin: auto 0;
+    }
 
 @media (min-width: 768px) {
   .nav-item .nav-link.active.active-pro {

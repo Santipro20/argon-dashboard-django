@@ -10,4 +10,5 @@ sidebarToggleButton.addEventListener('click', toggleSidebar);
 // Función para contraer o expandir la barra lateral
 function toggleSidebar() {
   sidebar.classList.toggle('collapsed');
+  document.body.classList.toggle('collapsed');
 }

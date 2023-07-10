@@ -41,12 +41,13 @@
 
 </head>
 
-<body class="">
+<body class="collapsed">
+  <div class="wrapper">
 
-  {% include "includes/sidenav.html" %}
+   {% include "includes/sidenav.html" %}
 
   
-    <div class="main-content collapsed" id="panel">
+    <div class="main-content" id="panel">
 
       {% include "includes/navigation.html" %}
   
@@ -54,8 +55,8 @@
   
     
     {% include "includes/scripts.html" %}
+     </div>
   </div>
-
   <!-- Specific JS goes HERE --> 
   {% block javascripts %}{% endblock javascripts %}
   
