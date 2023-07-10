@@ -13073,13 +13073,13 @@ textarea[resize="horizontal"] {
     
     .main-content {
       flex-grow: 1;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       margin-left: 250px;
     }
     
     .sidenav {
       width: 250px;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
     
     .sidenav.collapsed {
@@ -13116,9 +13116,19 @@ textarea[resize="horizontal"] {
       }
     }
 
-    .navbar-toggler.ml-auto {
-      margin: auto 0;
-    }
+      .sidenav.collapsed .navbar-brand {
+      display: none;
+      }
+
+      .sidenav.collapsed  .nav-link-text {
+        display: none ; 
+        }
+
+      .sidenav.collapsed  .navbar-toggler {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      }
 
 @media (min-width: 768px) {
   .nav-item .nav-link.active.active-pro {
