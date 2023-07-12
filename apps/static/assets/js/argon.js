@@ -773,49 +773,63 @@ var FormControl = (function() {
 // Google maps
 //
 
-var $map = $('#map-default'),
-    map,
-    lat,
-    lng,
-    color = "#005347";
+var $map = $('#map-default');
+var map;
+var lat;
+var lng;
+var color = "#005347";
+var autocomplete;
 
 function initMap() {
+  map = document.getElementById('map-default');
+  lat = parseFloat(map.getAttribute('data-lat'));
+  lng = parseFloat(map.getAttribute('data-lng'));
 
-    map = document.getElementById('map-default');
-    lat = map.getAttribute('data-lat');
-    lng = map.getAttribute('data-lng');
+  var myLatlng = new google.maps.LatLng(lat, lng);
+  var mapOptions = {
+    zoom: 6,
+    scrollwheel: false,
+    center: myLatlng,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+  }
 
-    var myLatlng = new google.maps.LatLng(lat, lng);
-    var mapOptions = {
-        zoom: 12,
-        scrollwheel: false,
-        center: myLatlng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
+  map = new google.maps.Map(map, mapOptions);
+
+  var marker = new google.maps.Marker({
+    position: myLatlng,
+    map: map,
+    animation: google.maps.Animation.DROP,
+    title: 'Hello World!'
+  });
+
+  var contentString = '<div class="info-window-content"><h2>Argon Dashboard</h2>' +
+    '<p>A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</p></div>';
+
+  var infowindow = new google.maps.InfoWindow({
+    content: contentString
+  });
+
+  marker.addListener('click', function() {
+    infowindow.open(map, marker);
+  });
+
+  // Inicializar el autocompletado de búsqueda de Google Places
+  autocomplete = new google.maps.places.Autocomplete(document.getElementById('search'));
+  autocomplete.bindTo('bounds', map);
+
+  // Cuando se selecciona una ubicación en el autocompletado, centrar y hacer zoom en el mapa
+  autocomplete.addListener('place_changed', function() {
+    var place = autocomplete.getPlace();
+    if (place.geometry && place.geometry.location) {
+      map.setCenter(place.geometry.location);
+      map.setZoom(15);
+      marker.setPosition(place.geometry.location);
     }
-
-    map = new google.maps.Map(map, mapOptions);
-
-    var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map,
-        animation: google.maps.Animation.DROP,
-        title: 'Hello World!'
-    });
-
-    var contentString = '<div class="info-window-content"><h2>Argon Dashboard</h2>' +
-        '<p>A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</p></div>';
-
-    var infowindow = new google.maps.InfoWindow({
-        content: contentString
-    });
-
-    google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map, marker);
-    });
+  });
 }
 
-if($map.length) {
-    google.maps.event.addDomListener(window, 'load', initMap);
+if ($map.length) {
+  window.addEventListener('load', initMap);
 }
 
 //
