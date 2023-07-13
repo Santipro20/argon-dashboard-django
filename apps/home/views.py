@@ -8,10 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-from django.shortcuts import render
-from plotly.offline import plot
-from apps.home.models import Courses
-import pandas as pd
+from apps.home.models import AccessTokens
+
 
 #@login_required(login_url="/login/")
 def index(request):
@@ -47,14 +45,5 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
 
 
-def chart(request):
-   courses = Courses.objects.all()
-   data = courses.values("id","price","cost")
-   df = pd.DataFrame.from_records(data)
-   data = df[["price", "cost"]]
-   # Crear el objeto gráfico de plotly
-   graph = plot([{"x": data["price"], "y": data["cost"], "type": "bar"}], output_type="div")
-   # Pasar el objeto gráfico al contexto
-   context = {"plot_div": graph}
-   return render(request, 'index.html', context)
+
 
