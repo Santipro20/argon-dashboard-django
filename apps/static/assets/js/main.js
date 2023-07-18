@@ -12,7 +12,7 @@ function showSearchForm() {
     // Get current URL
     const currentURL = window.location.pathname;
     
-    if (currentURL === '/map.html') {
+    if (currentURL === '/map.html'  || currentURL === '/map2.html') {
       // Show form for map page
       showSearchForm();
     } else {  

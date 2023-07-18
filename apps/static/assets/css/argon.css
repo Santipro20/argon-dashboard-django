@@ -11997,6 +11997,7 @@ textarea[resize="horizontal"] {
     font-size: 0.5rem; }
   .icon-xs + .icon-text {
     width: calc(100% - $icon-size-xs - 1); }
+    
 
 .icon-shape {
   padding: 12px;
@@ -13110,7 +13111,7 @@ textarea[resize="horizontal"] {
       body.collapsed .sidenav {
         width: 70px;
       }
-    
+      
       body.collapsed .main-content {
         margin-left: 70px;
       }
