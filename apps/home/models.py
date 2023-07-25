@@ -633,3 +633,16 @@ class ZonePricing(models.Model):
     class Meta:
         managed = False
         db_table = 'zone_pricing'
+
+class PolygonFrance(models.Model):
+    id = models.AutoField(primary_key=True)
+    code_postal_1 = models.TextField(blank=True, null=True)
+    geometry = JSONField(blank=True, null=True)  # This field type is a guess.
+
+    class Meta:
+        managed = False
+        db_table = 'polygon_france'
+
+
+
+     
