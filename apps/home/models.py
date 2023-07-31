@@ -158,8 +158,7 @@ class Dispatchers(models.Model):
         db_table = 'dispatchers'
 
 class Geolocation(models.Model):
-    id = models.IntegerField(primary_key=True)
-    uid = models.CharField(max_length=255)
+    uid = models.CharField(max_length=255, primary_key=True)
     task = models.ForeignKey('Tasks', models.PROTECT)
     coursier = models.ForeignKey(Coursier, models.PROTECT)
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
