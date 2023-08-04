@@ -8,26 +8,28 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
-from apps.home.models import Courses, Tasks, Merchants, Geolocation
-import pandas as pd 
-from apps.home.tasks import num_delivery
+from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco
+from django.core.cache import cache
 
 #@login_required(login_url="/login/")
 def index(request):
     context = {'segment': 'index'}
-    
-    # Convert to pandas dataframe
-    df_courses = list(Courses.objects.all().values())
-    df_tasks = list(Tasks.objects.all().values())
-    df_merchants = list(Merchants.objects.all().values())
 
-    result = num_delivery.apply_async(args=[df_courses, df_tasks, df_merchants])
-    result_data = result.get()
-    num_finised_task, month_growth, df_id_merchant = result_data
+    num_delivery_result = num_delivery()
+    economi_km = eco_km()
+    time_eco_e = time_eco()
+
+    month_growth,num_finised_task = num_delivery_result
+    km_saved, km_saved_total = economi_km
+    time_saved, time_saved_total = time_eco_e
 
     # Share info with the context
     context['number_of_deliveries'] = num_finised_task
     context['porcentage'] = month_growth
+    context['porcentage_km'] = km_saved
+    context['value_km'] = km_saved_total
+    context['value_h'] = time_saved_total
+    context['porcentage_h'] = time_saved
 
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))

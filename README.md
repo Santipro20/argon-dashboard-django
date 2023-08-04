@@ -76,7 +76,7 @@ $
 $ # Access the web app in browser: http://127.0.0.1:8000/
 $ # python manage.py shell interactive console 
 ```
-
+celery worker -A core -l=info
 > Note: To use the app, please access the registration page and create a new user. After authentication, the app will unlock the private pages.
 
 <br />

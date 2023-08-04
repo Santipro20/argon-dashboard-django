@@ -7,6 +7,7 @@ import os
 from decouple import config
 from unipath import Path
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).parent
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,8 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.home',  # Enable the inner home (home)
-    'django_celery_beat',
-    'django_celery_results',
+    'django_redis',
 ]
 
 MIDDLEWARE = [
@@ -133,5 +133,13 @@ STATICFILES_DIRS = (
 
 
 #############################################################
-#############################################################
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/0', 
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
