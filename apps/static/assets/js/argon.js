@@ -878,55 +878,67 @@ var BarsChart = (function() {
 
 'use strict';
 
-//
-// Sales chart
-//
-
-var SalesChart = (function() {
-
-	// Variables
-  
+$(document).ready(function() {
+	// Inicializa el gráfico cuando el documento esté listo
 	var $chart = $('#chart-sales-dark');
+	var salesChart = initSalesChart($chart);
   
-	// Methods
+	// Manejo de clics en los botones
+	$('#co2-button').click(function() {
+	  updateChartWithData(salesChart, [1234,456]);
+	});
   
-	function init($chart) {
+	$('#metano-button').click(function() {
+	  updateChartWithData(salesChart, [500,100]);
+	});
   
-	  var salesChart = new Chart($chart, {
-		type: 'horizontalBar',
-		options: {
-		  scales: {
-			x: {
-			  beginAtZero: true,
-			  ticks: {
-				callback: function(value) {
-				  return '$' + value + 'k';
-				}
+	$('#contaminante1-button').click(function() {
+	  updateChartWithData(salesChart, [450,80]);
+	});
+  
+	$('#contaminante2-button').click(function() {
+	  updateChartWithData(salesChart, [450000,80000]);
+	});
+  });
+  
+  
+  // Función para inicializar el gráfico
+function initSalesChart($chart) {
+	return new Chart($chart, {
+	  type: 'horizontalBar',
+	  options: {
+		scales: {
+		  x: {
+			beginAtZero: true,
+			ticks: {
+			  callback: function(value) {
+				return '$' + value + 'k';
 			  }
-			}
-		  },
-		  plugins: {
-			legend: {
-			  display: false
 			}
 		  }
 		},
-		data: {
-		  labels: ['VUL','Deki'],
-		  datasets: [{
-			label: 'Performance',
-			data: [123,12]
-		  }]
+		plugins: {
+		  legend: {
+			display: false
+		  }
 		}
-	  });
-	}
+	  },
+	  data: {
+		labels: ['VUL', 'Deki'],
+		datasets: [{
+		  label: 'Performance',
+		  data: [1234,456]
+		}]
+	  }
+	});
+  }
   
-	// Initialize chart
-	if ($chart.length) {
-	  init($chart);
-	}
-  
-  })();
+  // Función para actualizar los datos del gráfico
+  function updateChartWithData(chart, newData) {
+	chart.data.datasets[0].data = newData;
+	chart.update();
+  };
+
   
 
 //
@@ -1076,3 +1088,5 @@ var Scrollbar = (function() {
 	}
 
 })();
+
+

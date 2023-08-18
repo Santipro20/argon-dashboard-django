@@ -12,20 +12,7 @@
       <div class="container-fluid">
         <div class="header-body">
           <div class="row align-items-center py-4">
-            <div class="col-lg-6 col-7">
-              <h6 class="h2 text-white d-inline-block mb-0">Default</h6>
-              <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
-                <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                  <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
-                  <li class="breadcrumb-item"><a href="#">Dashboards</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Default</li>
-                </ol>
-              </nav>
-            </div>
-            <div class="col-lg-6 col-5 text-right">
-              <a href="#" class="btn btn-sm btn-neutral">New</a>
-              <a href="#" class="btn btn-sm btn-neutral">Filters</a>
-            </div>
+
           </div>
           <!-- Card stats -->
           <div class="row">
@@ -36,7 +23,7 @@
                   <div class="row">
                     <div class="col">
                       <h5 class="card-title text-uppercase text-muted mb-0">Livraisons terminées</h5>
-                      <span class="h2 font-weight-bold mb-0">{{number_of_deliveries}}</span>
+                      <span class="h2 font-weight-bold mb-0" id="number_of_deliveries">{{number_of_deliveries}}</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
@@ -44,10 +31,6 @@
                       </div>
                     </div>
                   </div>
-                  <p class="mt-3 mb-0 text-sm">
-                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{porcentage}}% </span>
-                    <span class="text-nowrap">Depuis le mois dernier</span>
-                  </p>
                 </div>
               </div>
             </div>
@@ -57,8 +40,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">CO2 économisé soit {{value_e}} kg</h5>
-                      <span class="h2 font-weight-bold mb-0">{{porcentage_e}}%</span>
+                      <h5 class="card-title text-uppercase text-muted mb-0" id="value_e">CO2 économisé soit {{value_e}} kg</h5>
+                      <span class="h2 font-weight-bold mb-0" id="porcentage_e">{{porcentage_e}}%</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
@@ -75,8 +58,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Km économisé soit {{value_km}} km</h5>
-                      <span class="h2 font-weight-bold mb-0">{{porcentage_km}}%</span>
+                      <h5 class="card-title text-uppercase text-muted mb-0" id="value_km">Km économisé soit {{value_km}} km</h5>
+                      <span class="h2 font-weight-bold mb-0" id="porcentage_km" >{{porcentage_km}}%</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
@@ -93,8 +76,8 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">Temps économisé soit {{value_h}}h</h5>
-                      <span class="h2 font-weight-bold mb-0">{{porcentage_h}}%</span>
+                      <h5 class="card-title text-uppercase text-muted mb-0" id="value_h" >Temps économisé soit {{value_h}}h</h5>
+                      <span class="h2 font-weight-bold mb-0" id="porcentage_h">{{porcentage_h}}%</span>
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
@@ -118,23 +101,15 @@
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="text-uppercase text-muted ls-1 mb-1">Overview</h6>
-                  <h5 class="h3 mb-0">Sales value</h5>
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h5 class="h3 mb-0">Émissions de CO2 par type de véhicule</h5>
                 </div>
                 <div class="col">
                   <ul class="nav nav-pills justify-content-end">
-                    <li class="nav-item mr-2 mr-md-0" data-toggle="chart" data-target="#chart-sales-dark" data-update='{"data":{"datasets":[{"data":[0, 20, 10, 30, 15, 40, 20, 60, 60]}]}}' data-prefix="$" data-suffix="k">
-                      <a href="#" class="nav-link py-2 px-3 active" data-toggle="tab">
-                        <span class="d-none d-md-block">Month</span>
-                        <span class="d-md-none">M</span>
-                      </a>
-                    </li>
-                    <li class="nav-item" data-toggle="chart" data-target="#chart-sales-dark" data-update='{"data":{"datasets":[{"data":[0, 20, 5, 25, 10, 30, 15, 40, 40]}]}}' data-prefix="$" data-suffix="k">
-                      <a href="#" class="nav-link py-2 px-3" data-toggle="tab">
-                        <span class="d-none d-md-block">Week</span>
-                        <span class="d-md-none">W</span>
-                      </a>
-                    </li>
+                    <button id="co2-button" class="btn btn-primary">CO2</button>
+                    <button id="metano-button" class="btn btn-primary">CH4(Méthane)</button>
+                    <button id="contaminante1-button" class="btn btn-primary">N2O</button>
+                    <button id="contaminante2-button" class="btn btn-primary">ozone</button>
                   </ul>
                 </div>
               </div>
@@ -398,5 +373,26 @@
 
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+  <script>
+    var socket = new WebSocket("ws://127.0.0.1:8000/ws/co2_updates/");
+    
+    socket.addEventListener("open", function (event) {
+      console.log("Connexion WebSocket établie");
+    });
+    
+    socket.addEventListener("message", function (event) {
+      var data = JSON.parse(event.data);
+    
+      // Actualizar los valores en las tarjetas usando los datos recibidos
+      $("#number_of_deliveries").text(data.number_of_deliveries);
+      $("#porcentage_km").text(data.porcentage_km);
+      $("#value_km").text(data.value_km);
+      $("#value_h").text(data.value_h);
+      $("#porcentage_h").text(data.porcentage_h);
+      $("#value_e").text(data.value_e);
+      $("#porcentage_e").text(data.porcentage_e);
+    });
+    </script>
+    
 
 {% endblock javascripts %}

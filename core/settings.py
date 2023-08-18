@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.home',  # Enable the inner home (home)
     'django_redis',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,14 @@ CACHES = {
 
 SESSION_COOKIE_SECURE = True 
 CSRF_COOKIE_SECURE = False
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = 'core.asgi.application'

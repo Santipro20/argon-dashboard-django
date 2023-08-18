@@ -53,8 +53,8 @@ $ git clone https://github.com/creativetimofficial/argon-dashboard-django.git
 $ cd argon-dashboard-django
 $
 $ # Virtualenv modules installation (Unix based systems)
-$ virtualenv env
-$ source env/bin/activate
+$ virtualenv env #  python3 -m venv env
+$ source env/bin/activate # source env/bin/activate
 $
 $ # Virtualenv modules installation (Windows based systems)
 $ # virtualenv env
