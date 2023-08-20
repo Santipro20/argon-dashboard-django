@@ -87,6 +87,10 @@
 
 <script src="static/assets/node_modules/flatpickr/dist/flatpickr.min.js"></script>
 
+<script src="/static/assets/js/main.js"></script>
+
+<script src="/static/assets/js/websocket.js"></script>
+
 <script> 
 document.addEventListener("DOMContentLoaded", function () {
   var selectedDate = []; // Variable pour stocker la date sélectionnée
@@ -135,20 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
     dateDropdown.classList.remove("show"); // Fermer le menu déroulant après annulation
   });
 
-  // Ici, vous configureriez la connexion WebSocket et ses événements correspondants
-  var socket = new WebSocket("ws://127.0.0.1:8000/ws/co2_updates/");
-  socket.addEventListener("open", function (event) {
-    console.log("Connexion WebSocket établie");
-  });
-  socket.addEventListener("message", function (event) {
-    console.log("Message reçu via WebSocket :", event.data);
-  });
 
-  // Fonction pour envoyer la date sélectionnée au serveur via WebSockets
-  function envoyerDateSelectionnee(selectedDate) {
-    socket.send(JSON.stringify({ type: "date", value: selectedDate }));
-  }
 });
 </script>
-<script src="/static/assets/js/main.js"></script>
+
+
 

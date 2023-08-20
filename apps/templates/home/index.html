@@ -360,6 +360,7 @@
             </div>
           </div>
         </div>
+       
       </div>
 
       {% include "includes/footer.html" %}
@@ -370,29 +371,21 @@
 
 <!-- Specific JS goes HERE --> 
 {% block javascripts %}
+  <script>
+    window.driving = {{ driving_data|safe}}
+    window.cycling = {{ cycling_data|safe}}
+    window.VUL_met = {{ VUL_met_data|safe}}
+    window.VUL_no2 = {{ VUL_no2_data|safe}}
+    window.VUL_oz = {{ VUL_oz_data|safe}}
+    window.deki_met = {{ deki_met_data|safe}}
+    window.VUL_no2 = {{ deki_no2_data|safe}}
+    window.VUL_oz = {{ deki_oz_data|safe}}
 
+
+  </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
-  <script>
-    var socket = new WebSocket("ws://127.0.0.1:8000/ws/co2_updates/");
-    
-    socket.addEventListener("open", function (event) {
-      console.log("Connexion WebSocket établie");
-    });
-    
-    socket.addEventListener("message", function (event) {
-      var data = JSON.parse(event.data);
-    
-      // Actualizar los valores en las tarjetas usando los datos recibidos
-      $("#number_of_deliveries").text(data.number_of_deliveries);
-      $("#porcentage_km").text(data.porcentage_km);
-      $("#value_km").text(data.value_km);
-      $("#value_h").text(data.value_h);
-      $("#porcentage_h").text(data.porcentage_h);
-      $("#value_e").text(data.value_e);
-      $("#porcentage_e").text(data.porcentage_e);
-    });
-    </script>
-    
+  <script src="/static/assets/js/websocket.js"></script>
+
 
 {% endblock javascripts %}

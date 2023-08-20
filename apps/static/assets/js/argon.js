@@ -876,30 +876,39 @@ var BarsChart = (function() {
 
 })();
 
+
 'use strict';
 
 $(document).ready(function() {
 	// Inicializa el gráfico cuando el documento esté listo
 	var $chart = $('#chart-sales-dark');
 	var salesChart = initSalesChart($chart);
+	let driving = window.driving
+	let cycling = window.cycling 
+	let VUL_met = window.VUL_met 
+	let VUL_no2 = window.VUL_no2
+	let VUL_oz = window.VUL_oz
+	let deki_met = window.deki_met 
+	let deki_no2 = window.deki_no2
+	let deki_oz = window.deki_oz
   
 	// Manejo de clics en los botones
 	$('#co2-button').click(function() {
-	  updateChartWithData(salesChart, [1234,456]);
+	  updateChartWithData(salesChart, [driving,cycling]);
 	});
   
 	$('#metano-button').click(function() {
-	  updateChartWithData(salesChart, [500,100]);
+	  updateChartWithData(salesChart, [VUL_met,deki_met]);
 	});
   
 	$('#contaminante1-button').click(function() {
-	  updateChartWithData(salesChart, [450,80]);
+	  updateChartWithData(salesChart, [VUL_no2,deki_no2]);
 	});
   
 	$('#contaminante2-button').click(function() {
-	  updateChartWithData(salesChart, [450000,80000]);
+	  updateChartWithData(salesChart, [VUL_oz,deki_oz]);
 	});
-  });
+})();
   
   
   // Función para inicializar el gráfico
@@ -927,19 +936,17 @@ function initSalesChart($chart) {
 		labels: ['VUL', 'Deki'],
 		datasets: [{
 		  label: 'Performance',
-		  data: [1234,456]
+		  data: [driving,cycling]
 		}]
 	  }
 	});
-  }
+}
   
   // Función para actualizar los datos del gráfico
   function updateChartWithData(chart, newData) {
 	chart.data.datasets[0].data = newData;
 	chart.update();
-  };
-
-  
+};
 
 //
 // Bootstrap Datepicker

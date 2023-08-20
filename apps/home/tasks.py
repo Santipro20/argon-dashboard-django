@@ -4,7 +4,7 @@ import pandas as pd
 from django.core.cache import cache
 from itertools import zip_longest 
 import numpy as np
-import simplejson as json
+
 
 def get_data_id():
 
@@ -101,33 +101,33 @@ def get_data_cydi():
 
 def num_delivery(stored_selected_date):  
 
-    cache_key = f'num_delivery_{stored_selected_date}'
+    cache_key =f'num_delivery_{stored_selected_date}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         return cached_result
-    else: 
+    else:
         df = get_data_id()
 
-        if stored_selected_date is None:
-            df = df
-        else: 
-            st,en = stored_selected_date.split('to')
-            st = st.strip()  # Remove leading and trailing whitespace
-            en = en.strip() 
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
             st = pd.to_datetime(st, format='%d/%m/%Y')
             en = pd.to_datetime(en, format='%d/%m/%Y')
             st = st.tz_localize(df['end_date'].dt.tz)
             en = en.tz_localize(df['end_date'].dt.tz)
-            df =df[(df['end_date'] >= st) & (df['end_date'] <= en)]
+            df = df[(df['end_date'] >= st) & (df['end_date'] <= en)]
 
+        else: 
+            df = df
         # count the number of deliveries
-        num_finised_task = len(df)
-        result = (num_finised_task)
+        num_finished_task = len(df)
+        result = num_finished_task
     
     # save the result in cache
     cache.set(cache_key , result, timeout=41020)
     return result
+
+
 
 
 def CO2(stored_selected_date):
@@ -141,34 +141,35 @@ def CO2(stored_selected_date):
         # charger the data
         df_geo_task = get_data_cydi()
 
-        if stored_selected_date is None:
-            df_geo_task = df_geo_task
-        else: 
-            st,en = stored_selected_date.split('to')
-            st = st.strip()  # Remove leading and trailing whitespace
-            en = en.strip() 
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
             st = pd.to_datetime(st, format='%d/%m/%Y')
             en = pd.to_datetime(en, format='%d/%m/%Y')
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
-
-        df_geo_task['inclination'] = 0
-
+            df_geo_task = df_geo_task.reset_index(drop=True)
+        else: 
+            df_geo_task=df_geo_task
+            
         if df_geo_task.empty:
             emi = 'non calculable'     
             emi_total= 'non calculable'
-            result = (emi,emi_total)          
+            CO2_driving_total = 0
+            CO2_cycling_total =  0
+            result = (emi,emi_total,CO2_driving_total,CO2_cycling_total )          
         else:
+            df_geo_task['inclination'] = 0
+
             # Assuming db is a list of dictionaries or a pandas DataFrame with 'inclination', 'elevationA', and 'elevationB' columns.
             for i in range(len(df_geo_task)):
-                if df_geo_task['pickUpPoint_altitudes'][i] == 0 | df_geo_task['deliveryPoint_altitudes'][i] == 0:
-                    df_geo_task.loc[i, 'inclination'] = df_geo_task['pickUpPoint_altitudes'][i]+df_geo_task['deliveryPoint_altitudes'][i]
+                if df_geo_task['pickUpPoint_altitudes'][i] == 0 or df_geo_task['deliveryPoint_altitudes'][i] == 0:
+                    df_geo_task.loc[i, 'inclination'] = df_geo_task['pickUpPoint_altitudes'][i] + df_geo_task['deliveryPoint_altitudes'][i]
                 else:
                     df_geo_task.loc[i, 'inclination'] = (df_geo_task.loc[i, 'deliveryPoint_altitudes'] - df_geo_task.loc[i, 'pickUpPoint_altitudes']) / df_geo_task.loc[i, 'pickUpPoint_altitudes']
-                        
+  
             def calculate_diffs(lst):
-                return [b - a for a, b in zip_longest(lst, lst[1:], fillvalue=0)]
+               return [b - a for a, b in zip_longest(lst, lst[1:], fillvalue=0)]
                         
             # Apply the function to the 'speeds_cycling' column
             vector_diffs_1 = df_geo_task['speeds_cycling'].apply(lambda x: x if isinstance(x, list) else [x]).apply(calculate_diffs).values.tolist()
@@ -339,11 +340,11 @@ def CO2(stored_selected_date):
             else:
                 emi = 0 
             emi_total = (round(CO2_driving_total - CO2_cycling_total, 2))
-            result = (emi,emi_total)
+            result = (emi,emi_total,CO2_driving_total,CO2_cycling_total)
 
     # save the result in cache
     cache.set(cache_key, result, timeout= 40020)
-    return
+    return result
 
 
 def eco_km(stored_selected_date ): 
@@ -357,33 +358,35 @@ def eco_km(stored_selected_date ):
         #charger the data
         df_geo_task = get_data_cydi()
 
-        if stored_selected_date  is None:
-            df_geo_task = df_geo_task
-        else: 
-            st,en = stored_selected_date.split('to')
-            st = st.strip()  # Remove leading and trailing whitespace
-            en = en.strip() 
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
             st = pd.to_datetime(st, format='%d/%m/%Y')
             en = pd.to_datetime(en, format='%d/%m/%Y')
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
-
-
-        # create the column of total distance
-        df_geo_task['total_distance_cycling'] = df_geo_task['distances_cycling'].apply(lambda x: sum(x) if isinstance(x, list) else x)
-        df_geo_task['total_distance_driving'] = df_geo_task['distances_driving'].apply(lambda x: sum(x) if isinstance(x, list) else x)
-
-        distance_cycling = df_geo_task['total_distance_cycling'].sum()/1000
-        distance_driving = df_geo_task['total_distance_driving'].sum()/1000
-
-        # calculate the km saved by cycling instead of driving
-        if distance_driving > 0:
-            km_saved = round(((distance_driving - distance_cycling) / distance_driving) * 100, 2) * (-1)
+        else: 
+            df_geo_task=df_geo_task
+            
+        if df_geo_task.empty:
+            km_saved = 'non calculable'     
+            km_saved_total= 'non calculable'
+            result = (km_saved, km_saved_total)        
         else:
-            km_saved = 0
-        km_saved_total = round(distance_driving - distance_cycling, 2)
-        result = (km_saved, km_saved_total)
+            # create the column of total distance
+            df_geo_task['total_distance_cycling'] = df_geo_task['distances_cycling'].apply(lambda x: sum(x) if isinstance(x, list) else x)
+            df_geo_task['total_distance_driving'] = df_geo_task['distances_driving'].apply(lambda x: sum(x) if isinstance(x, list) else x)
+
+            distance_cycling = df_geo_task['total_distance_cycling'].sum()/1000
+            distance_driving = df_geo_task['total_distance_driving'].sum()/1000
+
+            # calculate the km saved by cycling instead of driving
+            if distance_driving > 0:
+                km_saved = round(((distance_driving - distance_cycling) / distance_driving) * 100, 2) * (-1)
+            else:
+                km_saved = 0
+            km_saved_total = round(distance_driving - distance_cycling, 2)
+            result = (km_saved, km_saved_total)
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 39020)
@@ -400,35 +403,74 @@ def time_eco(stored_selected_date):
         #charger the data
         df_geo_task = get_data_cydi()
 
-        if stored_selected_date is None:
-            df_geo_task = df_geo_task
-        else: 
-            st,en = stored_selected_date.split('to')
-            st = st.strip()  # Remove leading and trailing whitespace
-            en = en.strip() 
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
             st = pd.to_datetime(st, format='%d/%m/%Y')
             en = pd.to_datetime(en, format='%d/%m/%Y')
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
-
-        # summ the total time for cycling and driving
-        time_cycling = sum(val for sublist in df_geo_task['durations_cycling'] if isinstance(sublist, list) for val in sublist)
-        time_driving = sum(val for sublist in df_geo_task['durations_driving'] if isinstance(sublist, list) for val in sublist)
-
-        # calculate the time saved by cycling instead of driving
-        if time_driving > 0:
-            time_saved = round(((time_driving - time_cycling) / time_driving) * 100, 2)
+        else: 
+            df_geo_task=df_geo_task
+            
+        if df_geo_task.empty:
+            time_saved = 'non calculable'     
+            time_saved_total= 'non calculable'
+            result = (time_saved, time_saved_total)      
         else:
-             time_saved = 0 
-        time_saved_total = round((round(time_driving - time_cycling, 2))/60,2)
-        result = (time_saved, time_saved_total)
+            # summ the total time for cycling and driving
+            time_cycling = sum(val for sublist in df_geo_task['durations_cycling'] if isinstance(sublist, list) for val in sublist)
+            time_driving = sum(val for sublist in df_geo_task['durations_driving'] if isinstance(sublist, list) for val in sublist)
+
+            # calculate the time saved by cycling instead of driving
+            if time_driving > 0:
+                time_saved = round(((time_driving - time_cycling) / time_driving) * 100, 2)
+            else:
+                time_saved = 0 
+            time_saved_total = round((round(time_driving - time_cycling, 2))/60,2)
+            result = (time_saved, time_saved_total)
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 38020 )
     return result
 
-#def graph_CO2():
- #    
+def graph_CO2(stored_selected_date):
+    cache_key = f'graph_CO2{stored_selected_date}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        CO2_fun = CO2(stored_selected_date)
+        emi,emi_total,driving,cycling  = CO2_fun
 
- #   return 
+        if driving > 0  or cycling >0:
+            # Like the comparation is how the damage this CO2 is equal in others emissions then we need to think 
+            # the effect in at leats 100 years 
+            # The Global Warm Potential for this period for gas is :
+            Metano= 28
+            NO2 = 268
+            ozone= 1.130
+
+            VUL_met= round(driving/Metano,2)
+            VUL_no2 = round(driving/NO2,2)
+            VUL_oz = round(driving/ozone,2)  
+
+            deki_met= round(cycling/Metano,2)
+            deki_no2= round(cycling/NO2,2)
+            deki_oz= round(cycling/ozone,2 )
+
+            result= (VUL_met,VUL_no2,VUL_oz,deki_met,deki_no2,deki_oz)
+        else:
+            VUL_met= 0  
+            VUL_no2 = 0
+            VUL_oz = 0
+
+            deki_met= 0
+            deki_no2= 0
+            deki_oz= 0
+            result= (VUL_met,VUL_no2,VUL_oz,deki_met,deki_no2,deki_oz)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 38020 )
+    return result

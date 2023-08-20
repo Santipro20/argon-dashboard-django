@@ -21,7 +21,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         num_finised_task = num_delivery_result
         km_saved, km_saved_total = economi_km
         time_saved, time_saved_total = time_eco_e
-        emi, emi_total = CO2_fun
+        emi, emi_total, driving, cycling = CO2_fun 
 
         updated_data = {
             'number_of_deliveries': num_finised_task,
@@ -30,7 +30,9 @@ class MyConsumer(AsyncWebsocketConsumer):
             'value_h': time_saved_total,
             'porcentage_h': time_saved,
             'value_e': emi_total,
-            'porcentage_e': emi
+            'porcentage_e': emi,
+            'driving': driving,
+            'cycliung':cycling
         }
 
         await self.send(text_data=json.dumps({
