@@ -891,11 +891,31 @@ $(document).ready(function() {
 	let deki_met = window.deki_met 
 	let deki_no2 = window.deki_no2
 	let deki_oz = window.deki_oz
-  
+	let socket = window.socket
+
+	function updateChart() {
+		updateChartWithData(salesChart, [driving, cycling]);
+	  }
+
+	socket.addEventListener("message", function (event) {
+		var data = JSON.parse(event.data);
+		var updatedData = data.updated_data;
+
+		driving = updatedData.driving
+		cycling = updatedData.cycling
+		VUL_met = updatedData.VUL_met
+		VUL_no2 = updatedData.VUL_no2
+		VUL_oz = updatedData.VUL_oz
+		deki_met = updatedData.deki_met
+		deki_no2 = updatedData.deki_no2
+		deki_oz = updatedData.deki_oz
+
+		updateChart();
+
+	  });
+
 	// Manejo de clics en los botones
-	$('#co2-button').click(function() {
-	  updateChartWithData(salesChart, [driving,cycling]);
-	});
+	$('#co2-button').click(updateChart);
   
 	$('#metano-button').click(function() {
 	  updateChartWithData(salesChart, [VUL_met,deki_met]);

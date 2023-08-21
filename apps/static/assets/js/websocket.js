@@ -17,7 +17,7 @@ function envoyerDateSelectionnee(selectedDate) {
 }
 
 // Exportar el objeto socket y la función envoyerDateSelectionnee
-window.socket = socket;
+window.socket = socket
 window.envoyerDateSelectionnee = envoyerDateSelectionnee;
 
 // Función para inicializar y actualizar valores antes del WebSocket

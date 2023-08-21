@@ -102,7 +102,7 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
-                  <h5 class="h3 mb-0">Émissions de CO2 par type de véhicule</h5>
+                  <h5 class="h3 mb-0"  id="graph-title">Émissions de CO2 par type de véhicule</h5>
                 </div>
                 <div class="col">
                   <ul class="nav nav-pills justify-content-end">
@@ -111,6 +111,28 @@
                     <button id="contaminante1-button" class="btn btn-primary">N2O</button>
                     <button id="contaminante2-button" class="btn btn-primary">ozone</button>
                   </ul>
+                  <script>
+                  $(document).ready(function() {
+                      // Asigna un controlador de eventos solo a los botones dentro de la lista específica
+                      $(".nav-pills button.btn-primary").click(function() {
+                        // Remueve la clase "btn-selected" solo de los botones dentro de la lista específica
+                        $(".nav-pills button.btn-primary").removeClass("btn-selected");
+                        // Agrega la clase "btn-selected" al botón que se ha hecho clic
+                        $(this).addClass("btn-selected");
+
+                        var buttonText = $(this).text();
+                        $("#graph-title").text("Émissions de " + buttonText + " par type de véhicule");
+                      });
+                    });
+                    </script>
+                    
+                    <style>
+                    .btn-selected {
+                      background-color: #fb6340; /* Cambia este color al que desees para los botones seleccionados */
+                      color: white; /* Cambia este color al color de texto deseado para los botones seleccionados */
+                      border-color: #fb6340;
+                    }
+                    </style>
                 </div>
               </div>
             </div>
@@ -378,8 +400,8 @@
     window.VUL_no2 = {{ VUL_no2_data|safe}}
     window.VUL_oz = {{ VUL_oz_data|safe}}
     window.deki_met = {{ deki_met_data|safe}}
-    window.VUL_no2 = {{ deki_no2_data|safe}}
-    window.VUL_oz = {{ deki_oz_data|safe}}
+    window.deki_no2 = {{ deki_no2_data|safe}}
+    window.deki_oz = {{ deki_oz_data|safe}}
 
 
   </script>

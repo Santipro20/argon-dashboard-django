@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import simplejson as json
-from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2
+from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2, graph_CO2
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -17,11 +17,15 @@ class MyConsumer(AsyncWebsocketConsumer):
         time_eco_e = time_eco(stored_selected_date)
         economi_km = eco_km(stored_selected_date)
         CO2_fun = CO2(stored_selected_date)
+        graph = graph_CO2(stored_selected_date)
+
 
         num_finised_task = num_delivery_result
         km_saved, km_saved_total = economi_km
         time_saved, time_saved_total = time_eco_e
         emi, emi_total, driving, cycling = CO2_fun 
+        VUL_met,VUL_no2,VUL_oz,deki_met,deki_no2,deki_oz = graph
+
 
         updated_data = {
             'number_of_deliveries': num_finised_task,
@@ -32,7 +36,13 @@ class MyConsumer(AsyncWebsocketConsumer):
             'value_e': emi_total,
             'porcentage_e': emi,
             'driving': driving,
-            'cycliung':cycling
+            'cycliung':cycling,
+            'VUL_met':VUL_met,
+            'VUL_no2': VUL_no2,
+            'VUL_oz': VUL_oz,
+            'deki_met': deki_met,
+            'deki_no2': deki_no2,
+            'deki_oz': deki_oz
         }
 
         await self.send(text_data=json.dumps({
