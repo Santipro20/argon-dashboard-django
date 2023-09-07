@@ -1691,6 +1691,7 @@ textarea.form-control {
   .custom-select.is-valid ~ .valid-tooltip {
     display: block; }
 
+
 .was-validated .form-check-input:valid ~ .form-check-label, .form-check-input.is-valid ~ .form-check-label {
   color: #2dce89; }
 
@@ -1902,13 +1903,14 @@ fieldset:disabled a.btn {
   color: #fff;
   background-color: #005347;
   border-color: #005347;
-  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08); }
+  box-shadow: 0 4px 8px rgba(50, 50, 93, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1); }
   .btn-primary:hover {
     color: #fff;
     background-color: #005347;
-    border-color: #005347; }
+    border-color: #005347; 
+    box-shadow: 0 6px 10px rgba(50, 50, 93, 0.3), 0 3px 6px rgba(0, 0, 0, 0.15);}
   .btn-primary:focus, .btn-primary.focus {
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 0 rgba(94, 114, 228, 0.5); }
+    box-shadow: 0 6px 10px rgba(50, 50, 93, 0.3), 0 3px 6px rgba(0, 0, 0, 0.15), 0 0 0 0.2rem rgba(94, 114, 228, 0.5);}
   .btn-primary.disabled, .btn-primary:disabled {
     color: #fff;
     background-color: #005347;
@@ -1917,10 +1919,11 @@ fieldset:disabled a.btn {
   .show > .btn-primary.dropdown-toggle {
     color: #fff;
     background-color: #005347;
-    border-color: #005347; }
+    border-color: #005347; 
+    box-shadow: 0 4px 8px rgba(50, 50, 93, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);}
     .btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
     .show > .btn-primary.dropdown-toggle:focus {
-      box-shadow: none, 0 0 0 0 rgba(23, 89, 69, 0.5); }
+      box-shadow: none, 0 0 0 0.2rem rgba(23, 89, 69, 0.5); }
 
 .btn-secondary {
   color: #212529;
@@ -10861,6 +10864,7 @@ a.text-darker:hover, a.text-darker:focus {
     .show > .btn-google-plus.dropdown-toggle:focus {
       box-shadow: none, 0 0 0 0 rgba(221, 75, 57, 0.5); }
 
+
 .btn-instagram {
   color: #fff;
   background-color: #e4405f;
@@ -11823,7 +11827,7 @@ textarea[resize="horizontal"] {
   padding-left: 1.75rem; }
 
 .input-group {
-  box-shadow: 0 3px 2px rgba(233, 236, 239, 0.05);
+  box-shadow: none;
   border-radius: 0.25rem;
   transition: all 0.15s ease-in-out; }
   @media (prefers-reduced-motion: reduce) {
@@ -15710,6 +15714,7 @@ table.dataTable {
 .lavalamp .lavalamp-object.easeInOutQuint {
   transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1); }
 
+  
 .lavalamp .lavalamp-object.easeInOutSine {
   transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95); }
 

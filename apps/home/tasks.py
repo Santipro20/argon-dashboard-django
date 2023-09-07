@@ -127,9 +127,6 @@ def num_delivery(stored_selected_date):
     cache.set(cache_key , result, timeout=41020)
     return result
 
-
-
-
 def CO2(stored_selected_date):
     
     cache_key =f'CO2_result{stored_selected_date}'
@@ -169,13 +166,17 @@ def CO2(stored_selected_date):
                     df_geo_task.loc[i, 'inclination'] = (df_geo_task.loc[i, 'deliveryPoint_altitudes'] - df_geo_task.loc[i, 'pickUpPoint_altitudes']) / df_geo_task.loc[i, 'pickUpPoint_altitudes']
   
             def calculate_diffs(lst):
-               return [b - a for a, b in zip_longest(lst, lst[1:], fillvalue=0)]
+                # Replace None values with 0 before calculating differences
+                lst = [0 if x is None else x for x in lst]
+                return [b - a for a, b in zip_longest(lst, lst[1:], fillvalue=0)]
                         
             # Apply the function to the 'speeds_cycling' column
-            vector_diffs_1 = df_geo_task['speeds_cycling'].apply(lambda x: x if isinstance(x, list) else [x]).apply(calculate_diffs).values.tolist()
+            df_geo_task['speeds_cycling'] = df_geo_task['speeds_cycling'].apply(lambda x: [x] if isinstance(x, int) else x)
+            vector_diffs_1 = df_geo_task['speeds_cycling'].apply(calculate_diffs).tolist()
 
             # Apply the function to the 'speeds_driving' column
-            vector_diffs_2 = df_geo_task['speeds_driving'].apply(lambda x: x if isinstance(x, list) else [x]).apply(calculate_diffs).values.tolist()
+            df_geo_task['speeds_driving'] = df_geo_task['speeds_driving'].apply(lambda x: [x] if isinstance(x, int) else x)
+            vector_diffs_2 = df_geo_task['speeds_driving'].apply(calculate_diffs).tolist()
 
             df_geo_task['acceleration_cycling'] = vector_diffs_1
             df_geo_task['acceleration_driving'] = vector_diffs_2
@@ -210,15 +211,19 @@ def CO2(stored_selected_date):
                 b2_value = []
                 if isinstance(list_cell, list):
                     for i in range(len(list_cell)):
-                        b2_value.append((0.5 * Density_wind * area_front_vul * list_cell[i] * cd) / 1000)  # drag arodinamic force kN/m/s
+                        speed_value = list_cell[i]
+                        if speed_value is not None:
+                            b2_value.append((0.5 * Density_wind * area_front_vul * speed_value * cd) / 1000)
+                        else:
+                            b2_value.append(None)  # You can choose to keep None if needed
                 else:
-                    b2_value.append((0.5 * Density_wind * area_front_vul * list_cell * cd) / 1000)  # drag arodinamic force kN/m/s
+                    if list_cell is not None:
+                        b2_value.append((0.5 * Density_wind * area_front_vul * list_cell * cd) / 1000)
+                    else:
+                        b2_value.append(None)  # You can choose to keep None if needed   
                 b2.append(b2_value)
 
-            for i, sublist in enumerate(b2):
-                if all(item == 0 for item in sublist):
-                    b2[i] = 0  # Replace the sublist with a list containing a single 0
-                
+
             rt = []
             for n in range(len(df_geo_task)):
                 list_cell = df_geo_task.at[n, 'acceleration_driving']
@@ -243,10 +248,10 @@ def CO2(stored_selected_date):
                         rt_ap.append(rt_value)
                 rt.append(rt_ap)
 
-            for i in range(len(rt)):
-                if not rt[i]:  # Verifica si la lista en rt[i] está vacía
-                    rt[i] = 0
 
+            for n in range(len(rt)):
+                if not rt[n]:  # Check if the list at index n is empty
+                    rt[n] = [0]  # Replace the empty list with a list containing a single zero
 
             ft = []
             for n in range(len(rt)):
@@ -265,7 +270,7 @@ def CO2(stored_selected_date):
                     if list_cell <=0: 
                         ft_value.append(alpha_vul)
                     else: 
-                        ft_value.append(alpha_vul + beta_1_vul_diseal * list_cell * list_cell3 + (beta_2_vul_diseal * sum_weight_vul * (list_cell2 ** 2) * list_cell3[i]) / 1000)
+                        ft_value.append(alpha_vul + beta_1_vul_diseal * list_cell * list_cell3 + (beta_2_vul_diseal * sum_weight_vul * (list_cell2 ** 2) * list_cell3) / 1000)
                     ft.append(ft_value)
 
 
@@ -299,7 +304,7 @@ def CO2(stored_selected_date):
                         if isinstance(list_cell2[i], (int, float)) and isinstance(list_cell[i], (int, float)):
                             if list_cell[i] != 0 and list_cell2[i] != 0:  # Verificar si list_cell y list_cell2 son diferentes de cero
                                 BSP_value = list_cell2[i] * (1.01 * list_cell[i] + 9.81 * np.sin(np.radians(inclination)) + 0.078) + new_cof * (list_cell2[i] ** 3)
-                                BSP_value = BSP_value*list_cell3[i]
+                                BSP_value = BSP_value*list_cell3[i]*sum_weight_velo 
                             else:
                                 BSP_value = 0  # Reemplazar por cero si list_cell o list_cell2 son cero
                             BSP_ap.append(BSP_value)
@@ -308,7 +313,7 @@ def CO2(stored_selected_date):
                     if isinstance(list_cell2, (int, float)) and isinstance(list_cell, (int, float)):
                         if list_cell != 0 and list_cell2 != 0:  # Verificar si list_cell y list_cell2 son diferentes de cero
                             BSP_value = list_cell2 * (1.01 * list_cell + 9.81 * np.sin(np.radians(inclination)) + 0.078) + new_cof * (list_cell2 ** 3)
-                            BSP_value = BSP_value*list_cell3
+                            BSP_value = BSP_value*list_cell3*sum_weight_velo 
                         else:
                             BSP_value = 0  # Reemplazar por cero si list_cell o list_cell2 son cero
                         BSP_ap.append(BSP_value)
@@ -343,13 +348,13 @@ def CO2(stored_selected_date):
             result = (emi,emi_total,CO2_driving_total,CO2_cycling_total)
 
     # save the result in cache
-    cache.set(cache_key, result, timeout= 40020)
+    cache.set(cache_key, result, timeout= 4)
     return result
 
 
 def eco_km(stored_selected_date ): 
 
-    cache_key = f'eco_km_result{stored_selected_date }'
+    cache_key = f'eco_km_result{stored_selected_date}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -374,15 +379,17 @@ def eco_km(stored_selected_date ):
             result = (km_saved, km_saved_total)        
         else:
             # create the column of total distance
-            df_geo_task['total_distance_cycling'] = df_geo_task['distances_cycling'].apply(lambda x: sum(x) if isinstance(x, list) else x)
-            df_geo_task['total_distance_driving'] = df_geo_task['distances_driving'].apply(lambda x: sum(x) if isinstance(x, list) else x)
+            df_geo_task['distances_cycling'] = df_geo_task['distances_cycling'].apply(lambda x: [x] if isinstance(x, int) else x)
+            df_geo_task['distances_driving'] = df_geo_task['distances_driving'].apply(lambda x: [x] if isinstance(x, int) else x)
+            df_geo_task['total_distance_cycling'] = df_geo_task['distances_cycling'].apply(lambda x: sum(filter(None, x)) if isinstance(x, list) else 0)
+            df_geo_task['total_distance_driving'] = df_geo_task['distances_driving'].apply(lambda x: sum(filter(None, x)) if isinstance(x, list) else 0)
 
             distance_cycling = df_geo_task['total_distance_cycling'].sum()/1000
             distance_driving = df_geo_task['total_distance_driving'].sum()/1000
 
             # calculate the km saved by cycling instead of driving
             if distance_driving > 0:
-                km_saved = round(((distance_driving - distance_cycling) / distance_driving) * 100, 2) * (-1)
+                km_saved = round(((distance_driving - distance_cycling) / distance_driving) * 100, 2)
             else:
                 km_saved = 0
             km_saved_total = round(distance_driving - distance_cycling, 2)
@@ -419,6 +426,8 @@ def time_eco(stored_selected_date):
             result = (time_saved, time_saved_total)      
         else:
             # summ the total time for cycling and driving
+            df_geo_task['durations_cycling'] = df_geo_task['durations_cycling'].apply(lambda x: [x] if isinstance(x, int) else x)
+            df_geo_task['durations_driving'] = df_geo_task['durations_driving'].apply(lambda x: [x] if isinstance(x, int) else x)
             time_cycling = sum(val for sublist in df_geo_task['durations_cycling'] if isinstance(sublist, list) for val in sublist)
             time_driving = sum(val for sublist in df_geo_task['durations_driving'] if isinstance(sublist, list) for val in sublist)
 
@@ -427,7 +436,7 @@ def time_eco(stored_selected_date):
                 time_saved = round(((time_driving - time_cycling) / time_driving) * 100, 2)
             else:
                 time_saved = 0 
-            time_saved_total = round((round(time_driving - time_cycling, 2))/60,2)
+            time_saved_total = round((round(time_driving - time_cycling, 2))/3600,2)
             result = (time_saved, time_saved_total)
 
     # save the result in cache

@@ -13,6 +13,7 @@ from django.core.cache import cache
 from django.views.decorators.csrf import csrf_protect #csrf_exempt
 
 
+
 #@login_required(login_url="/login/")
 @csrf_protect
 def index(request):
@@ -48,8 +49,20 @@ def index(request):
     context['deki_no2_data'] = deki_no2
     context['deki_oz_data'] = deki_oz
     
+    
 
     html_template = loader.get_template('home/index.html')
+    return HttpResponse(html_template.render(context, request))
+
+
+@csrf_protect
+def index2(request):
+    context = {'segment': 'index2'}
+
+    
+    context['num']= '1233'
+
+    html_template = loader.get_template('home/index2.html')
     return HttpResponse(html_template.render(context, request))
 
 

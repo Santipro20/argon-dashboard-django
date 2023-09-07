@@ -928,7 +928,7 @@ $(document).ready(function() {
 	$('#contaminante2-button').click(function() {
 	  updateChartWithData(salesChart, [VUL_oz,deki_oz]);
 	});
-})();
+});
   
   
   // Función para inicializar el gráfico
