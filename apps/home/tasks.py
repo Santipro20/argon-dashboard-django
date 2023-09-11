@@ -163,7 +163,7 @@ def CO2(stored_selected_date):
                 if df_geo_task['pickUpPoint_altitudes'][i] == 0 or df_geo_task['deliveryPoint_altitudes'][i] == 0:
                     df_geo_task.loc[i, 'inclination'] = df_geo_task['pickUpPoint_altitudes'][i] + df_geo_task['deliveryPoint_altitudes'][i]
                 else:
-                    df_geo_task.loc[i, 'inclination'] = (df_geo_task.loc[i, 'deliveryPoint_altitudes'] - df_geo_task.loc[i, 'pickUpPoint_altitudes']) / df_geo_task.loc[i, 'pickUpPoint_altitudes']
+                    df_geo_task.loc[i, 'inclination'] = (df_geo_task.loc[i, 'deliveryPoint_altitudes'] - df_geo_task.loc[i, 'pickUpPoint_altitudes']) / df_geo_task.loc[i, 'pickUpPoint_altitudes'] # cambiar por la distancia
   
             def calculate_diffs(lst):
                 # Replace None values with 0 before calculating differences
@@ -203,7 +203,7 @@ def CO2(stored_selected_date):
             Density_wind = 1.225 #kg/m^3
             cd = 0.1 # drag coefficient
             b1 = (crr*sum_weight_vul*gravity)/1000 # rolling resistance force kN
-            VUL = 1.16 #kg eq. CO2/t.km
+            VUL = 2.7 #kg éq. CO2/litre
 
             b2 = []
             for n in range(len(df_geo_task)):
@@ -276,7 +276,7 @@ def CO2(stored_selected_date):
 
             FT = []
             for sublist in ft:
-                ft_sum = sum(sublist)
+                ft_sum = sum(sublist)/1000
                 FT.append(ft_sum)
 
             CO2_driving = []
@@ -291,6 +291,7 @@ def CO2(stored_selected_date):
             weight_velo = 24 #kg
             sum_weight_velo =  weigth_vul_delivery + load_velo + weight_velo
             new_cof = cof/ sum_weight_velo
+            velo = 0.0520 # kg éq. CO2/kWh
 
             BSP = []
             for n in range(len(df_geo_task)):
@@ -335,7 +336,7 @@ def CO2(stored_selected_date):
                 energy= BSP_total[i]/3600000 # kW/h
                 BSP_j.append(energy)
 
-            CO2_cycling = [bsp * 0.0520 for bsp in BSP_total] # C02 ADEME kWh france
+            CO2_cycling = [bsp * velo for bsp in BSP_total] # C02 ADEME kWh france
 
             # Final step for CO2 saved 
             CO2_driving_total = sum(CO2_driving)
@@ -482,4 +483,49 @@ def graph_CO2(stored_selected_date):
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 38020 )
+    return result
+
+def equivalence(stored_selected_date): 
+
+    cache_key = f'equivalence{stored_selected_date}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        emi,emi_total,driving,cycling = CO2(stored_selected_date)
+        battery_iphone = 3279 #mAh
+        battery_mac = 0.05753 # kWh
+        tension_iphone = 5 
+        f_iphone = 0.052 # kg eq. CO2/kWh
+        f_mac = 0.052 # kg eq. CO2/kWh
+        cp_iphone = (battery_iphone*tension_iphone)/1000000
+        f_trees = -0.00416
+        distance_train =  660 # km Paris - Marseille
+        f_train = 0.00334 # kg eq. CO2/passager*km
+        f_diesel = 2.7 #kg éq. CO2/litre
+        f_uber = 1.02 # kg éq. CO2/repas
+        f_print = 0.01022 # kg éq. CO2 / feuille
+        f_emails = 0.004 # kg éq. CO2/unité
+        f_labor = 6.19 # kg CO2/jour
+        f_water = 0.268 # kg éq. CO2/kg de poids net
+        f_pain = 0.00152 # kg éq. CO2/g
+        f_fromage = 0.00494 # kg éq. CO2/g
+
+        charger_iphone = emi_total/(f_iphone*cp_iphone)
+        charger_mac = emi_total/(battery_mac*f_mac)
+        trees = emi_total/f_trees * (-1)
+        train = emi_total/(f_train * distance_train)
+        diesel = emi_total/f_diesel
+        uber =  emi_total/f_uber
+        print_sheet = emi_total/f_print
+        emails = emi_total/f_emails
+        labor = emi_total/f_labor
+        water = emi_total/f_water
+        pain = emi_total/f_pain
+        fromage = emi_total/f_fromage
+        result = (charger_iphone,charger_mac,trees,train,diesel,uber,print_sheet,emails,labor,water,pain,fromage)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 37000 )
     return result

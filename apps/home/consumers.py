@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import simplejson as json
-from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2, graph_CO2
+from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2, graph_CO2, equivalence
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -18,6 +18,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         economi_km = eco_km(stored_selected_date)
         CO2_fun = CO2(stored_selected_date)
         graph = graph_CO2(stored_selected_date)
+        equ = equivalence(stored_selected_date)
 
 
         num_finised_task = num_delivery_result
@@ -25,6 +26,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         time_saved, time_saved_total = time_eco_e
         emi, emi_total, driving, cycling = CO2_fun 
         VUL_met,VUL_no2,VUL_oz,deki_met,deki_no2,deki_oz = graph
+        charger_iphone,charger_mac,trees,train, diesel, uber, print_sheet, emails, labor, water, pain, fromage  = equ
 
 
         updated_data = {
@@ -42,7 +44,19 @@ class MyConsumer(AsyncWebsocketConsumer):
             'VUL_oz': VUL_oz,
             'deki_met': deki_met,
             'deki_no2': deki_no2,
-            'deki_oz': deki_oz
+            'deki_oz': deki_oz,
+            'recharge_portable': charger_iphone,
+            'recharge_ordina': charger_mac,
+            'arbes_hec': trees,
+            'train_voya': train,
+            'diesel_E10': diesel, 
+            'uber_livra': uber,
+            'feuilles_print': print_sheet,
+            'emails': emails,
+            'travailleur_moyen': labor,
+            'water_bo' : water,
+            'pain_tranches': pain,
+            'portion_fromage': fromage
         }
 
         await self.send(text_data=json.dumps({

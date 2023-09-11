@@ -11171,6 +11171,10 @@ a.btn-icon-only {
 .card-profile-actions {
   padding: .875rem; }
 
+.arrow-buttons {
+  position: relative;
+  text-align: right;
+}
 .card-stats .card-body {
   padding: 1rem 1.5rem; }
 
@@ -12342,6 +12346,7 @@ textarea[resize="horizontal"] {
 
 .navbar-horizontal .navbar-nav .nav-item .media:not(:last-child) {
   margin-bottom: 1.5rem; }
+
 
 @media (min-width: 992px) {
   .navbar-horizontal .navbar-nav .nav-item {

@@ -63,7 +63,7 @@
                     </div>
                     <div class="col-auto">
                       <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
-                        <i class="ni ni-user-run"></i>
+                        <i class="fa-solid fa-road"></i>
                       </div>
                     </div>
                   </div>
@@ -145,24 +145,290 @@
             </div>
           </div>
         </div>
+        
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="text-uppercase text-muted ls-1 mb-1">Performance</h6>
-                  <h5 class="h3 mb-0">Total orders</h5>
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h5 class="h3 mb-0">Émissions d'équivalent économisées</h5>
+                </div>
+                <div class="arrow-buttons">
+                  <button type="button" class="btn btn-primary btn-sm" id="retourButton">Retour</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="avantButton">Avant</button>
                 </div>
               </div>
             </div>
             <div class="card-body">
-              <!-- Chart -->
-              <div class="chart">
-                <canvas id="chart-bars" class="chart-canvas"></canvas>
+              <!-- Tarjetas apiladas en un grid de tres columnas -->
+              <div class="row">
+                <div class="col-md-12"  id="card1">
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Recharges de téléphone portable</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour l'iPhone 14</h6>
+                          <span class="h2 font-weight-bold mb-0" id="recharge_portable">{{recharge_portable}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="card2">
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Recharges d'ordinateur portable</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les MacBook Air</h6>
+                          <span class="h2 font-weight-bold mb-0" id="recharge_ordina">{{recharge_ordina}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-laptop"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="card3">
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Hectares d'arbres plantés</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les plantations en France en termes d'absorption de CO2</h6>
+                          <span class="h2 font-weight-bold mb-0" id="arbes_hec">{{arbes_hec}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-seedling"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard1" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Voyages en train</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les voyages Paris - Marseille</h6>
+                          <span class="h2 font-weight-bold mb-0" id="train_voya">{{train_voya}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-train"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard2" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Litres de diesel</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour le diesel Essence/E10</h6>
+                          <span class="h2 font-weight-bold mb-0" id="diesel_E10">{{diesel_E10}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="ni ni-delivery-fast"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard3" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Livraison de restauration rapide</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les livraisons à domicile d'UberEats</h6>
+                          <span class="h2 font-weight-bold mb-0" id="uber_livra">{{uber_livra}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-brands fa-uber"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard4" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Feuilles imprimées</h5>
+                          <span class="h2 font-weight-bold mb-0" id="feuilles_print">{{feuilles_print}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-print"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard5" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Emails envoyés</h5>
+                          <span class="h2 font-weight-bold mb-0" id="emails">{{emails}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-regular fa-envelope"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard6" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Travailleur moyen</h5>
+                          <span class="h2 font-weight-bold mb-0" id="travailleur_moyen">{{travailleur_moyen}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-business-time"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard7" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Bouteilles d'eau consommées</h5>
+                          <span class="h2 font-weight-bold mb-0" id="water_bo">{{water_bo}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-bottle-droplet"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard8" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Tranches de pain pour le déjeuner</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Avec une portion moyenne de 34,16g à chaque déjeuner</h6>
+                          <span class="h2 font-weight-bold mb-0" id="pain_tranches">{{pain_tranches}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-bread-slice"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12" id="newCard9" style="display: none;" >
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">Demie portion de fromage</h5>
+                          <h6 class="text-uppercase text-muted ls-1 mb-1">Avec une portion moyenne de 13,44g </h6>
+                          <span class="h2 font-weight-bold mb-0" id="portion_fromage">{{portion_fromage}}</span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="fa-solid fa-cheese"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <script>
+          const allCards = document.querySelectorAll('.col-md-12'); // Todas las tarjetas, originales y nuevas
+          let currentIndex = 0;
+
+          function showCurrentCards() {
+            allCards.forEach(card => {
+              card.style.display = 'none'; // Ocultar todas las tarjetas
+            });
+
+            for (let i = currentIndex; i < currentIndex + 3; i++) {
+              if (i < allCards.length) {
+                allCards[i].style.display = 'block'; // Mostrar las siguientes 3 tarjetas
+              }
+            }
+          }
+
+          function showNextCards() {
+            currentIndex += 3;
+            if (currentIndex >= allCards.length) {
+              currentIndex = 0; // Volver al principio del ciclo
+            }
+            showCurrentCards();
+          }
+
+          function showPreviousCards() {
+            currentIndex -= 3;
+            if (currentIndex < 0) {
+              currentIndex = allCards.length - 3; // Volver al final del ciclo
+            }
+            showCurrentCards();
+          }
+
+          document.getElementById('avantButton').addEventListener('click', showNextCards);
+          document.getElementById('retourButton').addEventListener('click', showPreviousCards);
+
+          // Mostrar las primeras tarjetas al cargar la página
+          showCurrentCards();
+          </script>
       </div>
       <div class="row">
         <div class="col-xl-8">
