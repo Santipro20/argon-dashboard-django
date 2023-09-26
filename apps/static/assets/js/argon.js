@@ -856,10 +856,10 @@ var BarsChart = (function() {
 		var ordersChart = new Chart($chart, {
 			type: 'bar',
 			data: {
-				labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				labels: ['Jul', 'Aug', 'Sep'],
 				datasets: [{
 					label: 'Sales',
-					data: [25, 20, 30, 22, 17, 29]
+					data: [25, 20, 30]
 				}]
 			}
 		});
@@ -876,6 +876,67 @@ var BarsChart = (function() {
 
 })();
 
+'use strict';
+//
+// Donut graphic
+//
+$(document).ready(function() {
+	var $chart = $('#chart-donut');
+	var donutChart = initDonutChart($chart);
+	let sc_eco = window.sc_eco
+	let sc_vul = window.sc_vul 
+	let sc_deki = window.sc_deki
+
+	function updateDonutChart() {
+		updateDonutChartWithData(donutChart, [sc_vul, sc_deki, sc_eco]);
+	  }
+
+	socket.addEventListener("message", function (event) {
+		var data = JSON.parse(event.data);
+		var updatedData = data.updated_data;
+
+		sc_eco = updatedData.sc_eco
+		sc_vul = updatedData.sc_vul
+		sc_deki = updatedData.sc_deki
+		
+
+		updateDonutChart();
+
+	  });
+
+
+});
+
+function initDonutChart($chart) {
+	return new Chart($chart, {
+	  type: 'doughnut',
+	  data: {
+		labels: ['VUL', 'Deki', 'Économie'],
+		datasets: [
+		  {
+			data: [sc_vul,null,null],
+			backgroundColor: ['#005347',null,null]
+		  },
+		  {
+			data: [null,sc_deki, sc_eco],
+			backgroundColor: [ null,'#C9D200', '#E85127']
+		  }
+		]
+	  },
+	  options: {
+		cutoutPercentage: 40,
+		responsive: true
+	  }
+	});
+  }
+
+function updateDonutChartWithData(chart, newData) {
+	chart.data.datasets[0].data = [newData[0], null, null];
+  	chart.data.datasets[1].data = [null, newData[1], newData[2]];
+	chart.update()
+}
+  
+
 
 'use strict';
 
@@ -885,16 +946,26 @@ $(document).ready(function() {
 	var salesChart = initSalesChart($chart);
 	let driving = window.driving
 	let cycling = window.cycling 
+	let deki_vul = window.deki_vul
 	let VUL_met = window.VUL_met 
 	let VUL_no2 = window.VUL_no2
-	let VUL_oz = window.VUL_oz
+	let VUL_NOx = window.VUL_NOx
+	let VUL_CO = window.VUL_CO 
+	let VUL_PM = window.VUL_PM
 	let deki_met = window.deki_met 
 	let deki_no2 = window.deki_no2
-	let deki_oz = window.deki_oz
+	let deki_NOx = window.deki_NOx
+	let deki_CO = window.deki_CO
+	let deki_PM = window.deki_PM
+	let deki_vul_met = window.deki_vul_met 
+	let deki_vul_no2 = window.deki_vul_no2
+	let deki_vul_NOx = window.deki_vul_NOx
+	let deki_vul_CO = window.deki_vul_CO
+	let deki_vul_PM = window.deki_vul_PM
 	let socket = window.socket
 
 	function updateChart() {
-		updateChartWithData(salesChart, [driving, cycling]);
+		updateChartWithData(salesChart, [driving, cycling, deki_vul]);
 	  }
 
 	socket.addEventListener("message", function (event) {
@@ -903,12 +974,22 @@ $(document).ready(function() {
 
 		driving = updatedData.driving
 		cycling = updatedData.cycling
+		deki_vul = updatedData.deki_vul
 		VUL_met = updatedData.VUL_met
 		VUL_no2 = updatedData.VUL_no2
-		VUL_oz = updatedData.VUL_oz
+		VUL_NOx = updatedData.VUL_NOx
+		VUL_CO = updatedData.VUL_CO
+		VUL_PM = updatedData.VUL_PM
 		deki_met = updatedData.deki_met
 		deki_no2 = updatedData.deki_no2
-		deki_oz = updatedData.deki_oz
+		deki_NOx = updatedData.deki_NOx
+		deki_CO = updatedData.deki_CO
+		deki_PM = updatedData.deki_PM
+		deki_vul_met = updatedData.deki_vul_met
+		deki_vul_no2 = updatedData.deki_vul_no2
+		deki_vul_NOx = updatedData.deki_vul_NOx
+		deki_vul_CO = updatedData.deki_vul_CO
+		deki_vul_PM = updatedData.deki_vul_PM
 
 		updateChart();
 
@@ -918,15 +999,23 @@ $(document).ready(function() {
 	$('#co2-button').click(updateChart);
   
 	$('#metano-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_met,deki_met]);
+	  updateChartWithData(salesChart, [VUL_met,deki_met,deki_vul_met]);
 	});
   
 	$('#contaminante1-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_no2,deki_no2]);
+	  updateChartWithData(salesChart, [VUL_no2,deki_no2,deki_vul_no2]);
 	});
   
 	$('#contaminante2-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_oz,deki_oz]);
+	  updateChartWithData(salesChart, [VUL_NOx,deki_NOx,deki_vul_NOx]);
+	});
+
+	$('#contaminante3-button').click(function() {
+		updateChartWithData(salesChart, [VUL_CO,deki_CO,deki_vul_CO]);
+	  });
+
+	$('#contaminante4-button').click(function() {
+		updateChartWithData(salesChart, [VUL_PM,deki_PM,deki_vul_PM]);
 	});
 });
   
@@ -953,10 +1042,10 @@ function initSalesChart($chart) {
 		}
 	  },
 	  data: {
-		labels: ['VUL', 'Deki'],
+		labels: ['VUL', 'Deki','VUL électrique'],
 		datasets: [{
 		  label: 'Performance',
-		  data: [driving,cycling]
+		  data: [driving,cycling,deki_vul]
 		}]
 	  }
 	});

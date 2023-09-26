@@ -102,14 +102,16 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
-                  <h5 class="h3 mb-0"  id="graph-title">Émissions de CO2 par type de véhicule</h5>
+                  <h5 class="h3 mb-0"  id="graph-title">Émissions de kg CO2 par type de véhicule</h5>
                 </div>
                 <div class="col">
                   <ul class="nav nav-pills justify-content-end">
                     <button id="co2-button" class="btn btn-primary">CO2</button>
-                    <button id="metano-button" class="btn btn-primary">CH4(Méthane)</button>
+                    <button id="metano-button" class="btn btn-primary">CH4</button>
                     <button id="contaminante1-button" class="btn btn-primary">N2O</button>
-                    <button id="contaminante2-button" class="btn btn-primary">ozone</button>
+                    <button id="contaminante2-button" class="btn btn-primary">NOx</button>
+                    <button id="contaminante3-button" class="btn btn-primary">CO</button>
+                    <button id="contaminante4-button" class="btn btn-primary">PM</button>
                   </ul>
                   <script>
                   $(document).ready(function() {
@@ -120,8 +122,15 @@
                         // Agrega la clase "btn-selected" al botón que se ha hecho clic
                         $(this).addClass("btn-selected");
 
-                        var buttonText = $(this).text();
-                        $("#graph-title").text("Émissions de " + buttonText + " par type de véhicule");
+                        var gasText = $(this).text();
+                        var unitText = "kg";
+
+                        if (gasText.includes("PM")) {
+                            unitText = "ppm";
+                        } else if (gasText !== "CO2") {
+                            unitText = "g";
+                        }
+                        $("#graph-title").text("Émissions de" +" "+ unitText + " " + gasText +" par type de véhicule");
                       });
                     });
                     </script>
@@ -166,11 +175,10 @@
                 <div class="col-md-12"  id="card1">
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour l'iPhone 14">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Recharges de téléphone portable</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour l'iPhone 14</h6>
                           <span class="h2 font-weight-bold mb-0" id="recharge_portable">{{recharge_portable}}</span>
                         </div>
                         <div class="col-auto">
@@ -185,11 +193,10 @@
                 <div class="col-md-12" id="card2">
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour les MacBook Air">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Recharges d'ordinateur portable</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les MacBook Air</h6>
                           <span class="h2 font-weight-bold mb-0" id="recharge_ordina">{{recharge_ordina}}</span>
                         </div>
                         <div class="col-auto">
@@ -204,15 +211,14 @@
                 <div class="col-md-12" id="card3">
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour les plantations en France en termes d'absorption de CO2" >
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Hectares d'arbres plantés</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les plantations en France en termes d'absorption de CO2</h6>
                           <span class="h2 font-weight-bold mb-0" id="arbes_hec">{{arbes_hec}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow"  >
                             <i class="fa-solid fa-seedling"></i>
                           </div>
                         </div>
@@ -223,11 +229,10 @@
                 <div class="col-md-12" id="newCard1" style="display: none;" >
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour les voyages Paris - Marseille">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Voyages en train</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les voyages Paris - Marseille</h6>
                           <span class="h2 font-weight-bold mb-0" id="train_voya">{{train_voya}}</span>
                         </div>
                         <div class="col-auto">
@@ -242,11 +247,10 @@
                 <div class="col-md-12" id="newCard2" style="display: none;" >
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour le diesel Essence/E10">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Litres de diesel</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour le diesel Essence/E10</h6>
                           <span class="h2 font-weight-bold mb-0" id="diesel_E10">{{diesel_E10}}</span>
                         </div>
                         <div class="col-auto">
@@ -261,11 +265,10 @@
                 <div class="col-md-12" id="newCard3" style="display: none;" >
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Calculs pour les livraisons à domicile d'UberEats">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Livraison de restauration rapide</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Calculs pour les livraisons à domicile d'UberEats</h6>
                           <span class="h2 font-weight-bold mb-0" id="uber_livra">{{uber_livra}}</span>
                         </div>
                         <div class="col-auto">
@@ -319,7 +322,7 @@
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <h5 class="card-title text-uppercase text-muted mb-0">Travailleur moyen</h5>
+                          <h5 class="card-title text-uppercase text-muted mb-0">Travailleurs moyens</h5>
                           <span class="h2 font-weight-bold mb-0" id="travailleur_moyen">{{travailleur_moyen}}</span>
                         </div>
                         <div class="col-auto">
@@ -352,11 +355,10 @@
                 <div class="col-md-12" id="newCard8" style="display: none;" >
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Avec une portion moyenne de 34,16g à chaque déjeuner">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Tranches de pain pour le déjeuner</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Avec une portion moyenne de 34,16g à chaque déjeuner</h6>
                           <span class="h2 font-weight-bold mb-0" id="pain_tranches">{{pain_tranches}}</span>
                         </div>
                         <div class="col-auto">
@@ -371,11 +373,10 @@
                 <div class="col-md-12" id="newCard9" style="display: none;" >
                   <div class="card card-stats">
                     <!-- Card body -->
-                    <div class="card-body">
+                    <div class="card-body" data-toggle="tooltip"  title="Avec une portion moyenne de 13,44g">
                       <div class="row">
                         <div class="col">
                           <h5 class="card-title text-uppercase text-muted mb-0">Demie portion de fromage</h5>
-                          <h6 class="text-uppercase text-muted ls-1 mb-1">Avec une portion moyenne de 13,44g </h6>
                           <span class="h2 font-weight-bold mb-0" id="portion_fromage">{{portion_fromage}}</span>
                         </div>
                         <div class="col-auto">
@@ -435,101 +436,61 @@
           <div class="card">
             <div class="card-header border-0">
               <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Page visits</h3>
-                </div>
-                <div class="col text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">See all</a>
-                </div>
+                  <div class="col">
+                    <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                    <h5 class="h3 mb-0"  id="graph-title">Espace économisé sur les routes</h5>
+                  </div>
               </div>
             </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Page name</th>
-                    <th scope="col">Visitors</th>
-                    <th scope="col">Unique users</th>
-                    <th scope="col">Bounce rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">
-                      /argon/
-                    </th>
-                    <td>
-                      4,569
-                    </td>
-                    <td>
-                      340
-                    </td>
-                    <td>
-                      <i class="fas fa-arrow-up text-success mr-3"></i> 46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      /argon/index.html
-                    </th>
-                    <td>
-                      3,985
-                    </td>
-                    <td>
-                      319
-                    </td>
-                    <td>
-                      <i class="fas fa-arrow-down text-warning mr-3"></i> 46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      /argon/charts.html
-                    </th>
-                    <td>
-                      3,513
-                    </td>
-                    <td>
-                      294
-                    </td>
-                    <td>
-                      <i class="fas fa-arrow-down text-warning mr-3"></i> 36,49%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      /argon/tables.html
-                    </th>
-                    <td>
-                      2,050
-                    </td>
-                    <td>
-                      147
-                    </td>
-                    <td>
-                      <i class="fas fa-arrow-up text-success mr-3"></i> 50,87%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      /argon/profile.html
-                    </th>
-                    <td>
-                      1,795
-                    </td>
-                    <td>
-                      190
-                    </td>
-                    <td>
-                      <i class="fas fa-arrow-down text-danger mr-3"></i> 46,53%
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <div class="card-body">
+              <!-- Chart -->
+              <div class="chart">
+                <!-- Chart wrapper -->
+                
+                <canvas id="chart-donut" class="chart-canvas" ></canvas>
+                
+              </div>
+              <div id="legend">
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: #005347;"></span>
+                  <span class="legend-label" id ="sc_vul">VUL : {{sc_vul}} m&sup2</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: #C9D200;"></span>
+                  <span class="legend-label" id = "sc_deki">Deki : {{sc_deki}} m&sup2</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: #E85127;"></span>
+                  <span class="legend-label" id = "sc_eco">Économie : {{sc_eco}} m&sup2</span>
+                </div>
+              </div>
+              <style> /* Estilos para la leyenda */
+                .legend {
+                  display: flex;
+                  flex-direction: column;
+                  margin-left: 20px; /* Espacio entre el gráfico y la leyenda */
+                }
+                
+                .legend-item {
+                  display: flex;
+                  align-items: center;
+                  margin-bottom: 8px; /* Espacio entre elementos de la leyenda */
+                }
+                
+                .legend-color {
+                  width: 20px;
+                  height: 20px;
+                  margin-right: 8px; /* Espacio entre el cuadro de color y el nombre */
+                  border-radius: 20%;
+                }
+                </style>
+
             </div>
           </div>
         </div>
+
+
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header border-0">
@@ -662,18 +623,42 @@
   <script>
     window.driving = {{ driving_data|safe}}
     window.cycling = {{ cycling_data|safe}}
+    window.deki_vul = {{ deki_vul_data|safe}}
+
     window.VUL_met = {{ VUL_met_data|safe}}
     window.VUL_no2 = {{ VUL_no2_data|safe}}
-    window.VUL_oz = {{ VUL_oz_data|safe}}
+    window.VUL_NOx = {{ VUL_NOx_data|safe}}
+    window.VUL_CO = {{ VUL_CO_data|safe}}
+    window.VUL_PM = {{ VUL_PM_data|safe}}
+
     window.deki_met = {{ deki_met_data|safe}}
     window.deki_no2 = {{ deki_no2_data|safe}}
-    window.deki_oz = {{ deki_oz_data|safe}}
+    window.deki_NOx = {{ deki_NOx_data|safe}}
+    window.deki_CO = {{ deki_CO_data|safe}}
+    window.deki_PM = {{ deki_PM_data|safe}}
+
+    window.deki_vul_met = {{ deki_vul_met_data|safe}}
+    window.deki_vul_no2 = {{ deki_vul_no2_data|safe}}
+    window.deki_vul_NOx = {{ deki_vul_NOx_data|safe}}
+    window.deki_vul_CO = {{ deki_vul_CO_data|safe}}
+    window.deki_vul_PM = {{ deki_vul_PM_data|safe}}
+
+    window.sc_eco = {{ sc_eco|safe}}
+    window.sc_vul = {{ sc_vul|safe}}
+    window.sc_deki = {{ sc_deki|safe}}
 
 
   </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
   <script src="/static/assets/js/websocket.js"></script>
+
+
+
+  
+
+
+
 
 
 {% endblock javascripts %}

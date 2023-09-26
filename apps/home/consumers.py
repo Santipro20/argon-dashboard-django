@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import simplejson as json
-from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2, graph_CO2, equivalence
+from apps.home.tasks import num_delivery, get_data_cydi, get_data_id, eco_km, time_eco, CO2, graph_CO2, equivalence,space_eco
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -19,15 +19,15 @@ class MyConsumer(AsyncWebsocketConsumer):
         CO2_fun = CO2(stored_selected_date)
         graph = graph_CO2(stored_selected_date)
         equ = equivalence(stored_selected_date)
-
+        sp = space_eco(stored_selected_date)
 
         num_finised_task = num_delivery_result
         km_saved, km_saved_total = economi_km
         time_saved, time_saved_total = time_eco_e
-        emi, emi_total, driving, cycling = CO2_fun 
-        VUL_met,VUL_no2,VUL_oz,deki_met,deki_no2,deki_oz = graph
+        emi,emi_total,driving,cycling,deki_vul  = CO2_fun
+        VUL_met, VUL_no2, VUL_NOx, VUL_CO, VUL_PM,deki_met, deki_no2,deki_NOx,deki_CO, deki_PM,deki_vul_met,deki_vul_no2,deki_vul_NOx,deki_vul_CO,deki_vul_PM= graph
         charger_iphone,charger_mac,trees,train, diesel, uber, print_sheet, emails, labor, water, pain, fromage  = equ
-
+        sc_s,sc_vul,sc_deki=sp
 
         updated_data = {
             'number_of_deliveries': num_finised_task,
@@ -39,12 +39,22 @@ class MyConsumer(AsyncWebsocketConsumer):
             'porcentage_e': emi,
             'driving': driving,
             'cycliung':cycling,
+            'deki_vul' : deki_vul,
             'VUL_met':VUL_met,
             'VUL_no2': VUL_no2,
-            'VUL_oz': VUL_oz,
+            'VUL_NOx': VUL_NOx,
+            'VUL_CO' : VUL_CO,
+            'VUL_PM' : VUL_PM,
             'deki_met': deki_met,
             'deki_no2': deki_no2,
-            'deki_oz': deki_oz,
+            'deki_NOx': deki_NOx,
+            'deki_CO' : deki_CO,
+            'deki_PM' : deki_PM,
+            'deki_vul_met' : deki_vul_met,
+            'deki_vul_no2' : deki_vul_no2,
+            'deki_vul_NOx' : deki_vul_NOx,
+            'deki_vul_CO': deki_vul_CO,
+            'deki_vul_PM' : deki_vul_PM,
             'recharge_portable': charger_iphone,
             'recharge_ordina': charger_mac,
             'arbes_hec': trees,
@@ -56,7 +66,10 @@ class MyConsumer(AsyncWebsocketConsumer):
             'travailleur_moyen': labor,
             'water_bo' : water,
             'pain_tranches': pain,
-            'portion_fromage': fromage
+            'portion_fromage': fromage,
+            'sc_eco' : sc_s,
+            'sc_vul': sc_vul,
+            'sc_deki' : sc_deki
         }
 
         await self.send(text_data=json.dumps({

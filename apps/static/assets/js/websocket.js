@@ -41,4 +41,7 @@ function updateValues(updatedData) {
   document.getElementById("water_bo").innerHTML = updatedData.water_bo;
   document.getElementById("pain_tranches").innerHTML = updatedData.pain_tranches;
   document.getElementById("portion_fromage").innerHTML = updatedData.portion_fromage;
+  document.getElementById("sc_vul").innerHTML ="VUL : " + updatedData.sc_vul + " m&sup2";
+  document.getElementById("sc_deki").innerHTML = "Deki : " + updatedData.sc_deki + " m&sup2";
+  document.getElementById("sc_eco").innerHTML = "Économie : " + updatedData.sc_eco + " m&sup2";
 }
