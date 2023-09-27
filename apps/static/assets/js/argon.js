@@ -907,28 +907,33 @@ $(document).ready(function() {
 
 });
 
-function initDonutChart($chart) {
-	return new Chart($chart, {
-	  type: 'doughnut',
-	  data: {
-		labels: ['VUL', 'Deki', 'Économie'],
-		datasets: [
-		  {
-			data: [sc_vul,null,null],
-			backgroundColor: ['#005347',null,null]
-		  },
-		  {
-			data: [null,sc_deki, sc_eco],
-			backgroundColor: [ null,'#C9D200', '#E85127']
-		  }
-		]
+var chartData = {
+	labels: ['VUL', 'Deki', 'Économie'],
+	datasets: [
+	  {
+		data: [sc_vul, null, null],
+		backgroundColor: ['#E85127', null, null]
 	  },
+	  {
+		data: [null, sc_deki, sc_eco],
+		backgroundColor: [null, '#005347', '#C9D200']
+	  }
+	]
+  };
+  
+
+function initDonutChart($chart) {
+	var chart = new Chart($chart, {
+	  type: 'doughnut',
+	  data: chartData,
 	  options: {
 		cutoutPercentage: 40,
 		responsive: true
 	  }
 	});
+	return chart;
   }
+  
 
 function updateDonutChartWithData(chart, newData) {
 	chart.data.datasets[0].data = [newData[0], null, null];
@@ -965,7 +970,7 @@ $(document).ready(function() {
 	let socket = window.socket
 
 	function updateChart() {
-		updateChartWithData(salesChart, [driving, cycling, deki_vul]);
+		updateChartWithData(salesChart, [driving,  deki_vul, cycling]);
 	  }
 
 	socket.addEventListener("message", function (event) {
@@ -999,57 +1004,69 @@ $(document).ready(function() {
 	$('#co2-button').click(updateChart);
   
 	$('#metano-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_met,deki_met,deki_vul_met]);
+	  updateChartWithData(salesChart, [VUL_met,deki_vul_met,deki_met]);
 	});
   
 	$('#contaminante1-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_no2,deki_no2,deki_vul_no2]);
+	  updateChartWithData(salesChart, [VUL_no2,deki_vul_no2, deki_no2]);
 	});
   
 	$('#contaminante2-button').click(function() {
-	  updateChartWithData(salesChart, [VUL_NOx,deki_NOx,deki_vul_NOx]);
+	  updateChartWithData(salesChart, [VUL_NOx,deki_vul_NOx, deki_NOx]);
 	});
 
 	$('#contaminante3-button').click(function() {
-		updateChartWithData(salesChart, [VUL_CO,deki_CO,deki_vul_CO]);
+		updateChartWithData(salesChart, [VUL_CO,deki_vul_CO,deki_CO]);
 	  });
 
 	$('#contaminante4-button').click(function() {
-		updateChartWithData(salesChart, [VUL_PM,deki_PM,deki_vul_PM]);
+		updateChartWithData(salesChart, [VUL_PM,deki_vul_PM, deki_PM]);
 	});
 });
   
   
   // Función para inicializar el gráfico
-function initSalesChart($chart) {
-	return new Chart($chart, {
-	  type: 'horizontalBar',
-	  options: {
-		scales: {
-		  x: {
-			beginAtZero: true,
-			ticks: {
-			  callback: function(value) {
-				return '$' + value + 'k';
-			  }
-			}
-		  }
-		},
-		plugins: {
-		  legend: {
-			display: false
-		  }
-		}
-	  },
-	  data: {
-		labels: ['VUL', 'Deki','VUL électrique'],
-		datasets: [{
-		  label: 'Performance',
-		  data: [driving,cycling,deki_vul]
-		}]
-	  }
-	});
+  function initSalesChart($chart) {
+    return new Chart($chart, {
+        type: 'horizontalBar',
+        options: {
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function(value) {
+                            return '$' + value + 'k';
+                        }
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Kg de CO2' // Nombre del eje X
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Type de véhicule' // Nombre del eje Y
+                    }
+                }]
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        },
+        data: {
+            labels: ['VUL thermique', 'VUL électrique', 'Deki'],
+            datasets: [{
+                label: 'KG de CO2',
+                data: [driving, deki_vul, cycling],
+                backgroundColor: ['#E85127', '#C9D200', '#005347']
+            }]
+        }
+    });
 }
+
   
   // Función para actualizar los datos del gráfico
   function updateChartWithData(chart, newData) {
