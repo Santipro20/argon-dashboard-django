@@ -11,20 +11,35 @@ socket.addEventListener("message", function (event) {
   updateValues(data.updated_data); // Actualizar los valores en las tarjetas usando los datos recibidos
 });
 
-// Función para enviar la fecha seleccionada al servidor a través de WebSockets
-function envoyerDateSelectionnee(selectedDate) {
-  socket.send(JSON.stringify({ type: "date", value: selectedDate }));
-}
 
+
+function sendFiltersDataToServer(selectedDate, selectedCity) {
+  // Get the 'nuevonombre' from the URL
+  var newuser = window.newuserf;
+
+  // Create an object with the selected date, cities, and 'nuevonombre'
+  const messageData = {
+    type: "filters",
+    selected_date: selectedDate,
+    selected_city: selectedCity,
+    newuser: newuser,
+  };
+
+  console.log("Mensaje enviado al servidor:", messageData);
+
+  // Convert the object to JSON and send it to the WebSocket server
+  const messageJSON = JSON.stringify(messageData);
+  socket.send(messageJSON);
+}
 // Exportar el objeto socket y la función envoyerDateSelectionnee
 window.socket = socket
-window.envoyerDateSelectionnee = envoyerDateSelectionnee;
+window.sendFiltersDataToServer = sendFiltersDataToServer;
 
 // Función para inicializar y actualizar valores antes del WebSocket
 function updateValues(updatedData) {
   document.getElementById("number_of_deliveries").innerHTML = updatedData.number_of_deliveries;
   document.getElementById("porcentage_km").innerHTML = updatedData.porcentage_km + "%";
-  document.getElementById("value_km").innerHTML = "Km économisé soit " + updatedData.value_km + "h";
+  document.getElementById("value_km").innerHTML = "Km économisé soit " + updatedData.value_km + "km";
   document.getElementById("value_h").innerHTML = "Temps économisé soit " + updatedData.value_h + "h";
   document.getElementById("porcentage_h").innerHTML = updatedData.porcentage_h + "%";
   document.getElementById("value_e").innerHTML = "CO2 économisé soit " + updatedData.value_e + " kg";
@@ -44,4 +59,11 @@ function updateValues(updatedData) {
   document.getElementById("sc_vul").innerHTML ="VUL : " + updatedData.sc_vul + " m&sup2";
   document.getElementById("sc_deki").innerHTML = "Deki : " + updatedData.sc_deki + " m&sup2";
   document.getElementById("sc_eco").innerHTML = "Économie : " + updatedData.sc_eco + " m&sup2";
+  document.getElementById("livra_KPI").innerHTML = updatedData.livra_KPI + " Kg";
+  document.getElementById("km_KPI").innerHTML = updatedData.km_KPI + " Kg";
+  document.getElementById("coli_KPI").innerHTML = updatedData.coli_KPI + " Kg";
+  document.getElementById("poids_KPI").innerHTML = updatedData.poids_KPI + " G";
+  document.getElementById("m2_KPI").innerHTML = updatedData.m2_KPI + " G";
+  document.getElementById("temps").innerHTML = updatedData.temps + " Kg";
+
 }

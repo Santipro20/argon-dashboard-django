@@ -928,11 +928,27 @@ function initDonutChart($chart) {
 	  data: chartData,
 	  options: {
 		cutoutPercentage: 40,
-		responsive: true
+		responsive: true,
+		tooltips: {
+		  callbacks: {
+			label: function(tooltipItem, data) {
+			  var label = data.labels[tooltipItem.index];
+			  var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+
+			  // Only show the tooltip if the value is not null
+			  if (value !== null) {
+				return label + ': ' + value;
+			  } else {
+				return '';
+			  }
+			}
+		  }
+		}
 	  }
 	});
 	return chart;
   }
+  
   
 
 function updateDonutChartWithData(chart, newData) {
@@ -970,6 +986,8 @@ $(document).ready(function() {
 	let socket = window.socket
 
 	function updateChart() {
+		salesChart.data.datasets[0].label = 'Émissions de CO2 en kg';
+		salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'Kg de CO2';
 		updateChartWithData(salesChart, [driving,  deki_vul, cycling]);
 	  }
 
@@ -1004,22 +1022,32 @@ $(document).ready(function() {
 	$('#co2-button').click(updateChart);
   
 	$('#metano-button').click(function() {
+	  salesChart.data.datasets[0].label = 'Émissions de CH4 en g';
+	  salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'G de CH4';
 	  updateChartWithData(salesChart, [VUL_met,deki_vul_met,deki_met]);
 	});
   
 	$('#contaminante1-button').click(function() {
+	  salesChart.data.datasets[0].label = 'Émissions de N20 en g';
+	  salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'G de N20';
 	  updateChartWithData(salesChart, [VUL_no2,deki_vul_no2, deki_no2]);
 	});
   
 	$('#contaminante2-button').click(function() {
+	  salesChart.data.datasets[0].label = 'Émissions de NOx en g';
+	  salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'G de NOx';
 	  updateChartWithData(salesChart, [VUL_NOx,deki_vul_NOx, deki_NOx]);
 	});
 
 	$('#contaminante3-button').click(function() {
+		salesChart.data.datasets[0].label = 'Émissions de CO en g';
+		salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'G de CO';
 		updateChartWithData(salesChart, [VUL_CO,deki_vul_CO,deki_CO]);
 	  });
 
 	$('#contaminante4-button').click(function() {
+		salesChart.data.datasets[0].label = 'Émissions de PM en ppm';
+		salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'Ppm de PM';
 		updateChartWithData(salesChart, [VUL_PM,deki_vul_PM, deki_PM]);
 	});
 });
@@ -1059,7 +1087,7 @@ $(document).ready(function() {
         data: {
             labels: ['VUL thermique', 'VUL électrique', 'Deki'],
             datasets: [{
-                label: 'KG de CO2',
+                label: 'Émissions de CO2 en kg',
                 data: [driving, deki_vul, cycling],
                 backgroundColor: ['#E85127', '#C9D200', '#005347']
             }]

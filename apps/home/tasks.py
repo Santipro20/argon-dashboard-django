@@ -4,13 +4,14 @@ from django.core.cache import cache
 from itertools import zip_longest 
 import numpy as np
 import copy
+import re
 
 
 
 def get_data_id():
 
     # veryfy if the result is in cache
-    cached_result = cache.get('get_data')
+    cached_result = cache.get('get_data_4')
 
     if cached_result is not None:
         return cached_result
@@ -51,11 +52,10 @@ def get_data_id():
         result = df
     
     # save the result in cache
-    cache.set('get_data', result, timeout=43020)
+    cache.set('get_data_4', result, timeout=43020)
     return result
 
 def get_data_cydi():
-
     # veryfy if the result is in cache
     cached_result = cache.get('get_data_2')
     if cached_result is not None:
@@ -108,9 +108,9 @@ def get_data_cydi():
         df_task['speeds_cycling_copy'] = df_normalized_1['speeds_cycling'].apply(lambda x: copy.deepcopy(x) if isinstance(x, list) else [])
         df_task['distances_cycling_copy'] = df_normalized_1['distances_cycling'].apply(lambda x: copy.deepcopy(x) if isinstance(x, list) else [])
         
-        df_task['durations_cycling_copy'] = df_task['durations_cycling_copy'].apply(lambda x: [value * mean_time for value in x] if isinstance(x, list) else x)  
-        df_task['speeds_cycling_copy'] = df_task['speeds_cycling_copy'].apply(lambda x: [value * speed_mean_cycling for value in x] if isinstance(x, list) else x)
-        df_task['distances_cycling_copy'] = df_task.apply(lambda row: [a * b for a, b in zip(row['durations_cycling_copy'], row['speeds_cycling_copy'])] if isinstance(row['durations_cycling_copy'], list) and isinstance(row['speeds_cycling_copy'], list) else row['durations_cycling_copy'], axis=1)
+        df_task['durations_cycling_copy'] = df_task['durations_cycling_copy'].apply(lambda x: [value * mean_time for value in x] if isinstance(x, list) and all(isinstance(value, (int, float)) for value in x) else x)  
+        df_task['speeds_cycling_copy'] = df_task['speeds_cycling_copy'].apply(lambda x: [value * speed_mean_cycling for value in x] if isinstance(x, list) and all(isinstance(value, (int, float)) for value in x) else x)
+        df_task['distances_cycling_copy'] = df_task.apply(lambda row: [a * b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None for a, b in zip(row['durations_cycling_copy'], row['speeds_cycling_copy'])] if isinstance(row['durations_cycling_copy'], list) and isinstance(row['speeds_cycling_copy'], list) else row['durations_cycling_copy'], axis=1)
 
         df_grouped = (df_geo_task
             .groupby('id')
@@ -169,6 +169,35 @@ def get_data_cydi():
         df_geo_task = df_geo_task.dropna(subset= columns_prona, how= 'any')
         df_geo_task = df_geo_task[(df_geo_task['totalDuration_driving'] != 0 ) | (df_geo_task['totalDuration_cycling'] != 0)]
         df_geo_task = df_geo_task[(df_geo_task['totalDistance_driving'] != 0 ) | (df_geo_task['totalDistance_driving'] != 0)]
+
+        address = pd.json_normalize(df_geo_task['address'])['text']
+
+        def find_postal_code(address):
+            # Define the search pattern for postal codes (format: five digits)
+            pattern = r'\b\d{5}\b'
+
+            if not pd.isna(address):
+                # Search for the pattern in the address
+                result = re.search(pattern, address)
+            else:
+                result = None
+            # If a postal code is found, return the result
+            if result:
+                return result.group()
+            else:
+                return None
+
+        df_geo_task['postal'] = address
+
+        df_geo_task['postal'] = df_geo_task['postal'].apply(find_postal_code)
+
+        def get_id_city(postal_code):
+            if postal_code is not None and len(postal_code) >= 2:
+                return postal_code[:2]  # Get the first two digits
+            else:
+                return None
+
+        df_geo_task['id_city'] = df_geo_task['postal'].apply(get_id_city)
         
         result = df_geo_task
     
@@ -178,7 +207,7 @@ def get_data_cydi():
 
 def get_data_livra():
     # veryfy if the result is in cache
-    cached_result = cache.get('get_data')
+    cached_result = cache.get('get_data_3')
 
     if cached_result is not None:
         return cached_result
@@ -192,18 +221,34 @@ def get_data_livra():
         result = df_packages
     
     # save the result in cache
-    cache.set('get_data', result, timeout=42000)
+    cache.set('get_data_3', result, timeout=42000)
     return result
 
-def num_delivery(stored_selected_date):  
+def get_data_merchants():
+    # veryfy if the result is in cache
+    cached_result = cache.get('get_data_merchants')
 
-    cache_key =f'num_delivery_{stored_selected_date}'
+    if cached_result is not None:
+        return cached_result
+    else:
+        df_merchants = pd.DataFrame(list(Merchants.objects.all().values()))
+        result = df_merchants
+    
+    # save the result in cache
+    cache.set('get_data_merchants' , result, timeout=25020)
+    return result
+
+def num_delivery(stored_selected_date, selected_city,newuser=None):  
+
+    cache_key =f'num_delivery_{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         return cached_result
     else:
         df = get_data_id()
+        df_merchants = get_data_merchants()
+        df_geo_task = get_data_cydi()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -212,20 +257,116 @@ def num_delivery(stored_selected_date):
             st = st.tz_localize(df['end_date'].dt.tz)
             en = en.tz_localize(df['end_date'].dt.tz)
             df = df[(df['end_date'] >= st) & (df['end_date'] <= en)]
-
         else: 
             df = df
-        # count the number of deliveries
-        num_finished_task = len(df)
-        result = num_finished_task
-    
+
+        if selected_city is not None:
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+            id_tf = df_geo_task['id']
+            df = df[df['id_task'].isin(id_tf)]
+        else: 
+            df=df
+
+        
+        if newuser is not None:
+            if newuser == 'group_id=1' or newuser == '1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+            elif newuser == 'team_id=2' or newuser == '2':
+                df = df[df['team_id'] == 2]
+            elif newuser == 'team_id=3' or newuser == '3':
+                df = df[df['team_id'] == 3]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+            elif newuser == 'team_id=9' or newuser == '9':
+                df = df[df['team_id'] == 9]
+            elif newuser == 'team_id=10' or newuser == '10':
+                df = df[df['team_id'] == 10]
+            elif newuser == 'team_id=11' or newuser == '11':
+                df = df[df['team_id'] == 11]
+            elif newuser == 'team_id=13' or newuser == '13':
+                df = df[df['team_id'] == 13]
+            elif newuser == 'team_id=14' or newuser == '14':
+                df = df[df['team_id'] == 14]
+            elif newuser == 'team_id=15' or newuser == '15':
+                df = df[df['team_id'] == 15]
+            elif newuser == 'team_id=16' or newuser == '16':
+                df = df[df['team_id'] == 16]
+            elif newuser == 'team_id=17' or newuser == '17':
+                df = df[df['team_id'] == 17]
+            elif newuser == 'team_id=18' or newuser == '18':
+                df = df[df['team_id'] == 18]
+            elif newuser == 'team_id=19' or newuser == '19':
+                df = df[df['team_id'] == 19]
+            elif newuser == 'team_id=20' or newuser == '20':
+                df = df[df['team_id'] == 20]
+            elif newuser == 'team_id=22' or newuser == '22':
+                df = df[df['team_id'] == 22]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+            elif newuser == 'merchant_id=605' or newuser == '605':
+                df = df[df['merchant_id_course'] == 605]
+            elif newuser == 'merchant_id=607' or newuser == '607':
+                df = df[df['merchant_id_course'] == 607]
+            elif newuser == 'merchant_id=609' or newuser == '609':
+                df = df[df['merchant_id_course'] == 609]
+            elif newuser == 'merchant_id=610' or newuser == '610':
+                df = df[df['merchant_id_course'] == 610]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+            elif newuser == 'merchant_id=641' or newuser == '641':
+                df = df[df['merchant_id_course'] == 641]
+            elif newuser == 'merchant_id=649' or newuser == '649':
+                df = df[df['merchant_id_course'] == 649]
+            elif newuser == 'merchant_id=650' or newuser == '650':
+                df = df[df['merchant_id_course'] == 650]
+            elif newuser == 'merchant_id=651' or newuser == '651':
+                df = df[df['merchant_id_course'] == 651]
+            elif newuser == 'merchant_id=652' or newuser == '652':
+                df = df[df['merchant_id_course'] == 652]
+            else:
+                df= pd.DataFrame(columns=df.columns)
+        else:
+            df=df
+
+
+        if df.empty:
+            result = 'non_calculable'
+        else: 
+            num_finished_task = len(df)
+            result = num_finished_task
+
     # save the result in cache
     cache.set(cache_key , result, timeout=41020)
     return result
 
-def CO2(stored_selected_date):
+def CO2(stored_selected_date, selected_city, newuser=None):
 
-    cache_key =f'CO2_result{stored_selected_date}'
+    cache_key =f'CO2_result{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -233,6 +374,8 @@ def CO2(stored_selected_date):
     else:
         # charger the data
         df_geo_task = get_data_cydi()
+        df = get_data_id()
+        df_merchants = get_data_merchants()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -244,13 +387,168 @@ def CO2(stored_selected_date):
             df_geo_task = df_geo_task.reset_index(drop=True)
         else: 
             df_geo_task=df_geo_task
+
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+        else: 
+            df_geo_task=df_geo_task
+
+        if newuser is not None:
+            if newuser == 'group_id=1' or newuser == '1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=2' or newuser == '2':
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=3' or newuser == '3':
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=9' or newuser == '9':
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=10' or newuser == '10':
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=11' or newuser == '11':
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=13' or newuser == '13':
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=14' or newuser == '14':
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=15' or newuser == '15':
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=16' or newuser == '16':
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=17' or newuser == '17':
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=18' or newuser == '18':
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=19' or newuser == '19':
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=20' or newuser == '20':
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=22' or newuser == '22':
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605' or newuser == '605':
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607' or newuser == '607':
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609' or newuser == '609':
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610' or newuser == '610':
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641' or newuser == '641':
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649' or newuser == '649':
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650' or newuser == '650':
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651' or newuser == '651':
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652' or newuser == '652':
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
+        else: 
+            df_geo_task=df_geo_task
+
             
         if df_geo_task.empty:
             emi = 'non calculable'     
             emi_total= 'non calculable'
             CO2_driving_total = 0
             CO2_cycling_total =  0
-            result = (emi,emi_total,CO2_driving_total,CO2_cycling_total )          
+            CO2_deki_vul_total = 0
+            result = (emi,emi_total,CO2_driving_total,CO2_cycling_total,CO2_deki_vul_total )          
         else:
             df_geo_task['inclination'] = 0
 
@@ -545,9 +843,9 @@ def CO2(stored_selected_date):
     cache.set(cache_key, result, timeout= 36000)
     return result
 
-def eco_km(stored_selected_date ): 
+def eco_km(stored_selected_date, selected_city, newuser=None ): 
 
-    cache_key = f'eco_km_result{stored_selected_date}'
+    cache_key = f'eco_km_result{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -555,6 +853,8 @@ def eco_km(stored_selected_date ):
     else:
         #charger the data
         df_geo_task = get_data_cydi()
+        df = get_data_id()
+        df_merchants = get_data_merchants()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -563,6 +863,159 @@ def eco_km(stored_selected_date ):
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
+        else: 
+            df_geo_task=df_geo_task
+        
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+        else: 
+            df_geo_task=df_geo_task
+
+        if newuser is not None:
+            if newuser == 'group_id=1' or newuser == '1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=2' or newuser == '2':
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=3' or newuser == '3':
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=9' or newuser == '9' :
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=10' or newuser == '10' :
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=11' or newuser == '11':
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=13' or newuser == '13':
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=14' or newuser == '14':
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=15' or newuser == '15':
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=16' or newuser == '16':
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=17' or newuser == '17':
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=18' or newuser == '18':
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=19' or newuser == '19':
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=20' or newuser == '20':
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=22' or newuser == '22':
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605' or newuser == '605':
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607' or newuser == '607':
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609' or newuser == '609':
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610' or newuser == '610':
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641' or newuser == '641':
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649' or newuser == '649':
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650' or newuser == '650':
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651' or newuser == '651':
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652' or newuser == '652':
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
         else: 
             df_geo_task=df_geo_task
             
@@ -588,9 +1041,9 @@ def eco_km(stored_selected_date ):
     cache.set(cache_key , result, timeout= 39020)
     return result
 
-def time_eco(stored_selected_date): 
+def time_eco(stored_selected_date, selected_city, newuser=None): 
 
-    cache_key = f'time_eco_result{stored_selected_date}'
+    cache_key = f'time_eco_result{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -598,6 +1051,8 @@ def time_eco(stored_selected_date):
     else:
         #charger the data
         df_geo_task = get_data_cydi()
+        df = get_data_id()
+        df_merchants = get_data_merchants()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -606,6 +1061,159 @@ def time_eco(stored_selected_date):
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
+        else: 
+            df_geo_task=df_geo_task
+        
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+        else: 
+            df_geo_task=df_geo_task
+        
+        if newuser is not None:
+            if newuser == 'group_id=1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=2':
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=3':
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=9':
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=10':
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=11':
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=13':
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=14':
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=15':
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=16':
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=17':
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=18':
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=19':
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=20':
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=22':
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605':
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607':
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609':
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610':
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641':
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649':
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650':
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651':
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652':
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
         else: 
             df_geo_task=df_geo_task
             
@@ -632,21 +1240,18 @@ def time_eco(stored_selected_date):
     cache.set(cache_key , result, timeout= 38020 )
     return result
 
-def graph_CO2(stored_selected_date):
+def graph_CO2(stored_selected_date, selected_city, newuser=None):
 
-    cache.delete(f'graph_CO2{stored_selected_date}')
-
-    cache_key = f'graph_CO2{stored_selected_date}'
+    cache_key = f'graph_CO2{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         return cached_result
-    else:
-        CO2_fun = CO2(stored_selected_date)
-        emi,emi_total,driving,cycling,deki_vul  = CO2_fun
-
+    else:      
         #charger the data
         df_geo_task = get_data_cydi()
+        df = get_data_id()
+        df_merchants = get_data_merchants()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -657,6 +1262,164 @@ def graph_CO2(stored_selected_date):
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
         else: 
             df_geo_task=df_geo_task
+
+        
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+        else: 
+            df_geo_task=df_geo_task    
+
+        if newuser is not None:
+            CO2_fun = CO2(stored_selected_date,selected_city, newuser)
+            emi,emi_total,driving,cycling,deki_vul  = CO2_fun
+            if newuser == 'group_id=1'or newuser == '1' :
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=2' or newuser == '2' :
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=3' or newuser == '3' :
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=9' or newuser == '9':
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=10' or newuser == '10' :
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=11' or newuser == '11' :
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=13' or newuser == '13' :
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=14' or newuser == '14' :
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=15' or newuser == '15' :
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=16' or newuser == '16' :
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=17' or newuser == '17' :
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=18' or newuser == '18' :
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=19' or newuser == '19' :
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=20' or newuser == '20' :
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=22' or newuser == '22' :
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605' or newuser == '605' :
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607' or newuser == '607' :
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609' or newuser == '609' :
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610' or newuser == '610' :
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641'or newuser == '641' :
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649' or newuser == '649' :
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650' or newuser == '650' :
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651' or newuser == '651' :
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652' or newuser == '652' :
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
+        else: 
+            df_geo_task=df_geo_task
+            CO2_fun = CO2(stored_selected_date, selected_city)
+            emi,emi_total,driving,cycling,deki_vul  = CO2_fun
             
         if df_geo_task.empty:
             VUL_met = 0
@@ -725,15 +1488,19 @@ def graph_CO2(stored_selected_date):
     cache.set(cache_key , result, timeout= 38020 )
     return result
 
-def equivalence(stored_selected_date): 
+def equivalence(stored_selected_date, selected_city,newuser=None): 
 
-    cache_key = f'equivalence{stored_selected_date}'
+    cache_key = f'equivalence{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         return cached_result
     else:
-        emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date)
+        if newuser is not None:
+            emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city,newuser)
+        else:
+            emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city)
+
         if emi_total == 'non calculable': 
             charger_iphone = 'non calculable'
             charger_mac = 'non calculable'
@@ -766,18 +1533,18 @@ def equivalence(stored_selected_date):
             f_pain = 0.00152 # kg éq. CO2/g
             f_fromage = 0.00494 # kg éq. CO2/g
 
-            charger_iphone = round(emi_total/(f_iphone*cp_iphone),0)
-            charger_mac = round(emi_total/(battery_mac*f_mac),0)
-            trees = round(emi_total/f_trees * (-1),0)
-            train = round(emi_total/(f_train * distance_train),0)
-            diesel = round(emi_total/f_diesel,0)
-            uber =  round(emi_total/f_uber,0)
-            print_sheet = round(emi_total/f_print,0)
-            emails = round(emi_total/f_emails,0)
-            labor = round(emi_total/f_labor,0)
-            water = round(emi_total/f_water,0)
-            pain = round(emi_total/f_pain,0)
-            fromage = round(emi_total/f_fromage,0)
+            charger_iphone = round(emi_total/(f_iphone*cp_iphone))
+            charger_mac = round(emi_total/(battery_mac*f_mac))
+            trees = round(emi_total/f_trees * (-1))
+            train = round(emi_total/(f_train * distance_train))
+            diesel = round(emi_total/f_diesel)
+            uber =  round(emi_total/f_uber)
+            print_sheet = round(emi_total/f_print)
+            emails = round(emi_total/f_emails)
+            labor = round(emi_total/f_labor)
+            water = round(emi_total/f_water)
+            pain = round(emi_total/f_pain)
+            fromage = round(emi_total/f_fromage)
         result = (charger_iphone,charger_mac,trees,train,diesel,uber,print_sheet,emails,labor,water,pain,fromage)
             
 
@@ -785,9 +1552,9 @@ def equivalence(stored_selected_date):
     cache.set(cache_key , result, timeout= 37000 )
     return result
 
-def space_eco(stored_selected_date): 
+def space_eco(stored_selected_date, selected_city, newuser=None): 
 
-    cache_key = f'space_eco{stored_selected_date}'
+    cache_key = f'space_eco{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
     if cached_result is not None:
@@ -795,6 +1562,8 @@ def space_eco(stored_selected_date):
     else:
         #charger the data
         df_geo_task = get_data_cydi()
+        df = get_data_id()
+        df_merchants = get_data_merchants()
 
         if stored_selected_date is not None:
             st, en = stored_selected_date.strip('()[]').split(' to ')
@@ -803,6 +1572,159 @@ def space_eco(stored_selected_date):
             st = st.tz_localize(df_geo_task['end_date'].dt.tz)
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
+        else: 
+            df_geo_task=df_geo_task
+        
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+        else: 
+            df_geo_task=df_geo_task    
+
+        if newuser is not None:
+            if newuser == 'group_id=1' or newuser == '1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=2' or newuser == '2':
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=3' or newuser == '3':
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=9' or newuser == '9':
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=10' or newuser == '10':
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=11' or newuser == '11':
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=13' or newuser == '13':
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=14' or newuser == '14':
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=15' or newuser == '15':
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=16' or newuser == '16':
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=17' or newuser == '17':
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=18' or newuser == '18':
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=19' or newuser == '19':
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=20' or newuser == '20':
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'team_id=22' or newuser == '22':
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605' or newuser == '605':
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607' or newuser == '607':
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609' or newuser == '609':
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610' or newuser == '610':
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641' or newuser == '641':
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649' or newuser == '649':
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650' or newuser == '650':
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651' or newuser == '651':
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652' or newuser == '652':
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
         else: 
             df_geo_task=df_geo_task
             
@@ -832,4 +1754,446 @@ def space_eco(stored_selected_date):
             
     # save the result in cache
     cache.set(cache_key , result, timeout= 33444 )
+    return result
+
+def KPI_CO2(stored_selected_date,selected_city ,newuser=None): 
+
+    cache_key = f'KPI_CO2{stored_selected_date}_{newuser}_{selected_city}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        #charger the data
+        df_geo_task = get_data_cydi()
+        df_packages =  get_data_livra()
+        df = get_data_id()
+        print(df.columns)
+        df_merchants = get_data_merchants()
+
+
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
+            st = pd.to_datetime(st, format='%d/%m/%Y')
+            en = pd.to_datetime(en, format='%d/%m/%Y')
+            st = st.tz_localize(df_geo_task['end_date'].dt.tz)
+            en = en.tz_localize(df_geo_task['end_date'].dt.tz)
+            df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
+            df_packages = df_packages[(df_packages['created_at'] >= st) & (df_packages['created_at'] <= en)]
+        else: 
+            df_geo_task=df_geo_task
+            df_packages = df_packages
+
+        if selected_city is not None:
+
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+            id_f_task = df_geo_task['id']
+            df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+        else: 
+            df_geo_task=df_geo_task   
+            df_packages = df_packages  
+        
+        if newuser is not None:
+            emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city ,newuser)
+            num_delivery_result = num_delivery(stored_selected_date,selected_city,newuser)
+            km_saved, km_saved_total = eco_km(stored_selected_date,selected_city , newuser)
+            time_saved, time_saved_total = time_eco(stored_selected_date, selected_city , newuser)
+            SC_s,SC_vul,SC_deki = space_eco(stored_selected_date, selected_city ,newuser)
+            if newuser == 'group_id=1' or newuser == '1':
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)] 
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=2' or newuser == '2':
+                df = df[df['team_id'] == 2]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=3' or newuser == '3':
+                df = df[df['team_id'] == 3]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=4' or newuser == '4':
+                df = df[df['team_id'] == 4]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=6' or newuser == '6':
+                df = df[df['team_id'] == 6]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=9' or newuser == '9':
+                df = df[df['team_id'] == 9]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=10' or newuser == '10':
+                df = df[df['team_id'] == 10]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=11' or newuser == '11':
+                df = df[df['team_id'] == 11]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=13' or newuser == '13':
+                df = df[df['team_id'] == 13]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=14' or newuser == '14':
+                df = df[df['team_id'] == 14]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=15' or newuser == '15':
+                df = df[df['team_id'] == 15]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=16' or newuser == '16':
+                df = df[df['team_id'] == 16]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=17' or newuser == '17':
+                df = df[df['team_id'] == 17]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=18' or newuser == '18':
+                df = df[df['team_id'] == 18]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=19' or newuser == '19':
+                df = df[df['team_id'] == 19]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=20' or newuser == '20':
+                df = df[df['team_id'] == 20]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'team_id=22' or newuser == '22':
+                df = df[df['team_id'] == 22]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=606' or newuser == '606':
+                df = df[df['merchant_id_course'] == 606]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=605' or newuser == '605':
+                df = df[df['merchant_id_course'] == 605]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=607' or newuser == '607':
+                df = df[df['merchant_id_course'] == 607]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=609' or newuser == '609':
+                df = df[df['merchant_id_course'] == 609]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=610' or newuser == '610':
+                df = df[df['merchant_id_course'] == 610]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=617' or newuser == '617':
+                df = df[df['merchant_id_course'] == 617]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=630' or newuser == '630':
+                df = df[df['merchant_id_course'] == 630]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=635' or newuser == '635':
+                df = df[df['merchant_id_course'] == 635]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=640' or newuser == '640':
+                df = df[df['merchant_id_course'] == 640]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=641' or newuser == '641':
+                df = df[df['merchant_id_course'] == 641]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=649' or newuser == '649':
+                df = df[df['merchant_id_course'] == 649]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=650' or newuser == '650':
+                df = df[df['merchant_id_course'] == 650]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=651' or newuser == '651':
+                df = df[df['merchant_id_course'] == 651]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            elif newuser == 'merchant_id=652' or newuser == '652':
+                df = df[df['merchant_id_course'] == 652]
+                id_f_task = df['id_task']
+                df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
+                df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
+            else:
+                df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
+                df_packages = pd.DataFrame(columns=df_packages.columns)
+        else: 
+            df_geo_task = df_geo_task
+            df_packages = df_packages
+            emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city )
+            num_delivery_result = num_delivery(stored_selected_date, selected_city) 
+            km_saved, km_saved_total = eco_km(stored_selected_date, selected_city )
+            time_saved, time_saved_total = time_eco(stored_selected_date, selected_city )
+            SC_s,SC_vul,SC_deki = space_eco(stored_selected_date, selected_city )
+
+        
+        if df_geo_task.empty or df_packages.empty :
+            livra_eco_CO2 = 'non calculable' 
+            km_eco_CO2 = 'non calculable'
+            coli_eco_CO2 = 'non calculable'
+            weight_eco_CO2 = 'non calculable'
+            time_eco_CO2 = 'non calculable'
+            congestion_eco_CO2 = 'non calculable'
+            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2)     
+        else:
+            livra_eco_CO2 = round(emi_total/num_delivery_result,3)
+            km_eco_CO2 = round(emi_total/km_saved_total,3)
+            
+            # colis 
+            df_geo_task['notes'] = df_geo_task['notes'].str.lower()
+            df_geo_task['notes'] = df_geo_task['notes'].str.replace(',', '.')
+            
+            df_geo_task['new_weight']=0
+            def extract_weight(text):
+                match1 = re.search(r' [0-9]+\.*[0-9]+kg', text)
+                match2 = re.search(r' [0-9]+\.*[0-9]+ kg', text)
+                match3 = re.search(r'[0-9]+k', text)
+                match4 = re.search(r'[0-9]+ k', text)
+                match5 = re.search(r'[0-9]+  k', text)
+
+                if match1:
+                    return match1.group(0)[-8:]
+                elif match2:
+                    return match2.group(0)[-8:]
+                elif match3:
+                    return match3.group(0)[-3:]
+                elif match4:
+                    return match4.group(0)[-3:]
+                elif match5:
+                    return match5.group(0)[-4:]
+                else:
+                    return None
+
+            # Aplicar la función a la columna 'notes' y crear una nueva columna 'new_weight'
+            df_geo_task['new_weight'] = df_geo_task['notes'].apply(lambda x: extract_weight(x) if pd.notna(x) else None)
+            df_geo_task['new_weight'] = df_geo_task['new_weight'].str.replace(r'\D', '', regex=True).astype(float)
+
+            df_geo_task['cartons'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ carton', text)
+                match2 = re.search(r'[0-9]+carton',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['cartons'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['cartons'] = df_geo_task['cartons'].str.replace(r'\D', '', regex=True).astype(float)
+            
+            df_geo_task['bidons'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ bido', text)
+                match2 = re.search(r'[0-9]+bido',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['bidons'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['bidons'] = df_geo_task['bidons'].str.replace(r'\D', '', regex=True).astype(float)
+            
+            df_geo_task['sceaux'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ scea', text)
+                match2 = re.search(r'[0-9]+scea',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['sceaux'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['sceaux'] = df_geo_task['sceaux'].str.replace(r'\D', '', regex=True).astype(float)
+            
+            df_geo_task['bouteilles'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ boutei', text)
+                match2 = re.search(r'[0-9]+boutei',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['bouteilles'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['bouteilles'] = df_geo_task['bouteilles'].str.replace(r'\D', '', regex=True).astype(float)
+            
+            df_geo_task['sacs'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ sac', text)
+                match2 = re.search(r'[0-9]+sac',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['sacs'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['sacs'] = df_geo_task['sacs'].str.replace(r'\D', '', regex=True).astype(float)
+            
+            df_geo_task['bonbonnes'] = 0
+
+            def extract_cartons(text):
+                match1 = re.search(r'[0-9]+ bonbonn', text)
+                match2 = re.search(r'[0-9]+bonbonn',text)
+
+                if match1:
+                    return match1.group(0)
+                elif match2:
+                    return match2.group(0)
+                else:
+                    return None
+
+            df_geo_task['bonbonnes'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
+            df_geo_task['bonbonnes'] = df_geo_task['bonbonnes'].str.replace(r'\D', '', regex=True).astype(float)
+
+            print(df_packages.columns)
+            
+            count_colis = df_packages['delivery_id'].value_counts()
+            df_counts_colis = pd.DataFrame({'delivery_id': count_colis.index, 'colis_number': count_colis.values})
+            df['delivery_id'] = df_counts_colis['delivery_id'].astype(np.int64)
+            df_colis = pd.merge(df_counts_colis, df, right_on='id_task', left_on='delivery_id', how='right', suffixes=('_colis', '_df'))
+            df_colis_detec = df_geo_task[['cartons', 'bidons', 'sceaux','bouteilles', 'sacs', 'bonbonnes']]
+            df_colis_detec['colis_number'] = df_colis_detec.sum(axis=1, skipna=True)
+            df_colis_detec['colis_number'] = df_colis_detec['colis_number'].replace(0.0, np.nan)
+            df_colis_detec['id'] = df_geo_task['id']
+            df_colis = df_colis[df_colis['id_task'].isin(df_geo_task['id'])]
+            
+            df_colis['colis_number_updated'] = np.nan
+            df_colis.reset_index(drop=True, inplace=True)
+            df_colis_detec.reset_index(drop=True, inplace=True)
+
+            def update_colis_number(row):
+                if pd.isna(row['colis_number']):
+                    return df_colis_detec.at[row.name, 'colis_number']
+                else:
+                    return row['colis_number']
+
+            df_colis['colis_number_updated'] = df_colis.apply(update_colis_number, axis=1)
+            total_colis = sum(df_colis['colis_number_updated'].dropna())
+            
+            coli_eco_CO2 = round(emi_total/total_colis,3)
+            
+            summarized_df = df_packages.groupby('delivery_id')['weight'].sum().reset_index()
+            summarized_df.columns = ['delivery_id', 'weight']
+            summarized_df[summarized_df == 0] = np.nan
+            summarized_df = summarized_df.dropna()
+            
+            df_colis_detec.fillna(0, inplace=True)
+            df_colis_detec['new_weight'] = df_geo_task['new_weight']
+            df_colis_detec['final_weight'] = None
+
+            def weight(row):
+                if pd.isna(row['new_weight']):
+                    result =(df_colis_detec.at[row.name,'bidons']*3 + 
+                             df_colis_detec.at[row.name,'sceaux']*7 + 
+                             df_colis_detec.at[row.name,'bouteilles']*1.2 + 
+                             df_colis_detec.at[row.name,'sacs']*5 + 
+                             df_colis_detec.at[row.name,'bonbonnes']*10 +
+                             df_colis_detec.at[row.name,'cartons']*7.2)
+                    return  result
+                else: 
+                    return df_colis_detec.at[row.name,'new_weight']
+
+            df_colis_detec['final_weight'] = df_colis_detec.apply(weight, axis=1)
+            df_colis_detec[df_colis_detec == 0] = np.nan
+            
+            def final_weight(row):
+                if pd.isna(row['final_weight']):
+                    if df_colis_detec.at[row.name, 'id'] in summarized_df['delivery_id'].values:
+                        matching_rows = summarized_df.loc[summarized_df['delivery_id'] == df_colis_detec.at[row.name, 'id'], 'weight']
+                        if not matching_rows.empty:
+                            return matching_rows.values[0]
+                        else:
+                            return None
+                    else: 
+                        return None 
+                else:
+                    return row['final_weight']
+
+            df_colis_detec['final_weight_2'] = df_colis_detec.apply(final_weight, axis=1)
+            weight_colis = sum(df_colis_detec['final_weight_2'].fillna(0))
+            weight_eco_CO2 = round(emi_total/weight_colis*1000, 3)
+            time_eco_CO2 = round(emi_total/time_saved_total, 3)
+            congestion_eco_CO2 = round(emi_total/SC_s*1000, 3)
+            print(time_eco_CO2)
+            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2)     
+        
+            
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 23020 )
     return result

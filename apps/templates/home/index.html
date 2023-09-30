@@ -62,7 +62,7 @@
                       <span class="h2 font-weight-bold mb-0" id="porcentage_km" >{{porcentage_km}}%</span>
                     </div>
                     <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-orange text-white rounded-circle shadow">
+                      <div class="icon icon-shape bg-gradient-apple text-white rounded-circle shadow">
                         <i class="fa-solid fa-road"></i>
                       </div>
                     </div>
@@ -80,7 +80,7 @@
                       <span class="h2 font-weight-bold mb-0" id="porcentage_h">{{porcentage_h}}%</span>
                     </div>
                     <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
+                      <div class="icon icon-shape bg-gradient-blue text-white rounded-circle shadow">
                         <i class="ni ni-time-alarm"></i>
                       </div>
                     </div>
@@ -102,7 +102,7 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
-                  <h5 class="h3 mb-0"  id="graph-title">Émissions de kg CO2 par type de véhicule</h5>
+                  <h5 class="h3 mb-0"  id="graph-title">Émissions de CO2 par type de véhicule (kg)</h5>
                 </div>
                 <div class="col">
                   <ul class="nav nav-pills justify-content-end">
@@ -130,9 +130,10 @@
                         } else if (gasText !== "CO2") {
                             unitText = "g";
                         }
-                        $("#graph-title").text("Émissions de" +" "+ unitText + " " + gasText +" par type de véhicule");
+                        $("#graph-title").text("Émissions de " + gasText +" par type de véhicule" +" ("+unitText+")" );
                       });
                     });
+
                     </script>
                     
                     <style>
@@ -164,8 +165,8 @@
                   <h5 class="h3 mb-0">Émissions d'équivalent économisées</h5>
                 </div>
                 <div class="arrow-buttons">
-                  <button type="button" class="btn btn-primary btn-sm" id="retourButton">Retour</button>
-                  <button type="button" class="btn btn-secondary btn-sm" id="avantButton">Avant</button>
+                  <button type="button" class="btn btn-primary btn-sm" id="retourButton">&larr; </button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="avantButton">&rarr;</button>
                 </div>
               </div>
             </div>
@@ -182,7 +183,7 @@
                           <span class="h2 font-weight-bold mb-0" id="recharge_portable">{{recharge_portable}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
                             <i class="fa-solid fa-mobile-screen-button"></i>
                           </div>
                         </div>
@@ -200,7 +201,7 @@
                           <span class="h2 font-weight-bold mb-0" id="recharge_ordina">{{recharge_ordina}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
                             <i class="fa-solid fa-laptop"></i>
                           </div>
                         </div>
@@ -218,7 +219,7 @@
                           <span class="h2 font-weight-bold mb-0" id="arbes_hec">{{arbes_hec}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow"  >
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow"  >
                             <i class="fa-solid fa-seedling"></i>
                           </div>
                         </div>
@@ -236,7 +237,7 @@
                           <span class="h2 font-weight-bold mb-0" id="train_voya">{{train_voya}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
                             <i class="fa-solid fa-train"></i>
                           </div>
                         </div>
@@ -254,7 +255,7 @@
                           <span class="h2 font-weight-bold mb-0" id="diesel_E10">{{diesel_E10}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="ni ni-delivery-fast"></i>
                           </div>
                         </div>
@@ -272,7 +273,7 @@
                           <span class="h2 font-weight-bold mb-0" id="uber_livra">{{uber_livra}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-brands fa-uber"></i>
                           </div>
                         </div>
@@ -290,7 +291,7 @@
                           <span class="h2 font-weight-bold mb-0" id="feuilles_print">{{feuilles_print}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-solid fa-print"></i>
                           </div>
                         </div>
@@ -308,7 +309,7 @@
                           <span class="h2 font-weight-bold mb-0" id="emails">{{emails}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-regular fa-envelope"></i>
                           </div>
                         </div>
@@ -326,7 +327,7 @@
                           <span class="h2 font-weight-bold mb-0" id="travailleur_moyen">{{travailleur_moyen}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
                             <i class="fa-solid fa-business-time"></i>
                           </div>
                         </div>
@@ -344,7 +345,7 @@
                           <span class="h2 font-weight-bold mb-0" id="water_bo">{{water_bo}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-solid fa-bottle-droplet"></i>
                           </div>
                         </div>
@@ -362,7 +363,7 @@
                           <span class="h2 font-weight-bold mb-0" id="pain_tranches">{{pain_tranches}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-solid fa-bread-slice"></i>
                           </div>
                         </div>
@@ -380,7 +381,7 @@
                           <span class="h2 font-weight-bold mb-0" id="portion_fromage">{{portion_fromage}}</span>
                         </div>
                         <div class="col-auto">
-                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                          <div class="icon icon-shape bg-gradient-green  text-white rounded-circle shadow">
                             <i class="fa-solid fa-cheese"></i>
                           </div>
                         </div>
@@ -496,10 +497,8 @@
             <div class="card-header border-0">
               <div class="row align-items-center">
                 <div class="col">
-                  <h3 class="mb-0">Social traffic</h3>
-                </div>
-                <div class="col text-right">
-                  <a href="#!" class="btn btn-sm btn-primary">See all</a>
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h3 class="mb-0">Indicateurs d'Empreinte Carbone dans les Livraisons (KPS)</h3>
                 </div>
               </div>
             </div>
@@ -508,100 +507,57 @@
               <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Referral</th>
-                    <th scope="col">Visitors</th>
-                    <th scope="col"></th>
+                    <th scope="col">CO2 économisé</th>
+                    <th scope="col">Valeur CO2</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <th scope="row">
-                      Facebook
+                      Par chaque livraison    
                     </th>
-                    <td>
-                      1,480
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">60%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-danger" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <td id="livra_KPI">
+                      {{livra_KPI}} Kg
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">
-                      Facebook
+                      Par chaque km
                     </th>
-                    <td>
-                      5,480
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">70%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-success" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <td id="km_KPI">
+                      {{km_KPI}} Kg 
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">
-                      Google
+                      Par chaque colis
                     </th>
-                    <td>
-                      4,807
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">80%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-primary" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%;"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <td id="coli_KPI">
+                      {{coli_KPI}} Kg 
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">
-                      Instagram
+                      Par chaque kilos de poids
                     </th>
-                    <td>
-                      3,678
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">75%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-info" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%;"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <td id="poids_KPI">
+                      {{poids_KPI}} G 
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">
-                      twitter
+                      Par m&sup2 de congestion évitée    
                     </th>
-                    <td>
-                      2,645
+                    <td id="m2_KPI">
+                      {{m2_KPI}} G 
                     </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <span class="mr-2">30%</span>
-                        <div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-warning" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%;"></div>
-                          </div>
-                        </div>
-                      </div>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      Par chaque de temps passé
+                    </th>
+                    <td id="temps">
+                      {{temps}} Kg 
                     </td>
                   </tr>
                 </tbody>
@@ -646,6 +602,16 @@
     window.sc_eco = {{ sc_eco|safe}}
     window.sc_vul = {{ sc_vul|safe}}
     window.sc_deki = {{ sc_deki|safe}}
+    window.newuserf = {{ newuserf|default:"null"|safe}}
+
+    window.livra_KPI = {{ livra_KPI|safe}}
+    window.km_KPI = {{ km_KPI|safe}}
+    window.coli_KPI = {{coli_KPI|safe}}
+    window.poids_KPI = {{poids_KPI|safe}}
+    window.m2_KPI = {{m2_KPI|safe}}
+    window.temps = {{temps|safe}}
+
+    console.log("Valor de nu:", window.newuserf );
 
 
   </script>

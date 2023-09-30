@@ -18,24 +18,38 @@
       <li class="nav-item">
         <div class="input-group">
           <input type="text" id="datePicker" class="form-control" placeholder="Sélectionner une date">
-          <div class="input-group-append">
-            <button id="confirmDate" class="btn btn-primary">Confirmer</button>
-            <button id="cancelDate" class="btn btn-warning">Annuler</button>
-          </div>
         </div>
       </li>
       <div class=" city-selector">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="cityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Sélectionnez une ville
-            </button>
-            <div class="dropdown-menu" aria-labelledby="cityDropdown">
-                {% for ciudad in ciudades %}
-                    <a class="dropdown-item" href="#">{{ciudad}}</a>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="cityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Sélectionnez une ville
+          </button>
+          <div class="dropdown-menu" aria-labelledby="cityDropdown">
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="dijon"> Dijon
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="marseille"> Marseille
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="toulouse"> Toulouse
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="bordeaux"> Bordeaux
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="paris"> Paris
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="lille"> Lille
+              </a>
+              <a class="dropdown-item" href="#">
+                  <input type="checkbox" id="lyon"> Lyon
+              </a>
+          </div>
+      </div>  
+   </div>    
       <style>
         
         .city-selector {
@@ -47,7 +61,10 @@
          }
       </style>
      
-      
+     <div class="input-group-append">
+      <button id="confirmDate" class="btn btn-primary">Confirmer</button>
+      <button id="cancelDate" class="btn btn-warning">Annuler</button>
+    </div> 
       <!-- Navbar links -->
       <ul class="navbar-nav align-items-center  ml-md-auto ">
          <!-- <li class="nav-item d-xl-none">
@@ -67,24 +84,18 @@
         </li>
       </ul>
       <ul class="navbar-nav align-items-center ml-auto ml-md-0">
-        <li class="nav-item dropdown">
-            <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <li class="nav-item">
+            <a class="nav-link pr-0" >
                 <div class="media align-items-center">
                     <div class="media-body ml-2 d-none d-lg-block">
                         <span class="mb-0 text-sm font-weight-bold">
-                            <span id="option">Admin</span>
+                            {{ selected_option }}
                         </span>
                     </div>
                 </div>
             </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#" onclick="updateSelectedOption('Merchant')">Merchant</a>
-                <a class="dropdown-item" href="#" onclick="updateSelectedOption('Coursier')">Coursier</a>
-                <a class="dropdown-item" href="#" onclick="updateSelectedOption('Dispatcher')">Dispatcher</a>
-                <a class="dropdown-item" href="#" onclick="updateSelectedOption('Admin')">Admin</a>
-            </div>
         </li>
-      </ul>
+    </ul>
 
     <script>
         function updateSelectedOption(option) {
@@ -112,7 +123,7 @@
 
 <script> 
 document.addEventListener("DOMContentLoaded", function () {
-  var selectedDate = []; // Variable pour stocker la date sélectionnée
+  var selectedDate = null; // Variable pour stocker la date sélectionnée
 
   var datePickerInput = document.getElementById("datePicker");
 
@@ -132,19 +143,35 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.getElementById("confirmDate").addEventListener("click", function () {
-    if (selectedDate) {
+    var selectedCity = null; 
+
+    var checkboxes = document.querySelectorAll('.city-selector input[type="checkbox"]');
+    var ciudadesSeleccionadas = [];
+
+    checkboxes.forEach(function (checkbox) {
+      if (checkbox.checked) {
+        ciudadesSeleccionadas.push(checkbox.id);
+      }
+    });
+
+    // Si no se ha seleccionado ninguna ciudad, establecer selectedCity en null
+    selectedCity = ciudadesSeleccionadas.length > 0 ? ciudadesSeleccionadas : null;
+
+    if (selectedDate || selectedCity) {
       console.log("Date sélectionnée:", selectedDate);
-      alert("Vous avez sélectionné la date : " + selectedDate);
-      envoyerDateSelectionnee(selectedDate); // Envoyer la date au serveur en utilisant WebSockets
+      console.log("Date sélectionnée:", selectedCity);
+      alert("Vous avez sélectionné la date et ville : " + selectedDate + " "+ selectedCity) ;
+      sendFiltersDataToServer(selectedDate, selectedCity); // Envoyer la date au serveur en utilisant WebSockets
     } else {
-      console.log("Aucune date sélectionnée");
-      alert("Veuillez sélectionner une date avant de confirmer.");
+      console.log("Aucune date et ville sélectionnée");
+      alert("Veuillez sélectionner une date et ville avant de confirmer.");
     }
   });
 
   document.getElementById("cancelDate").addEventListener("click", function () {
     console.log("Sélection de date annulée");
     selectedDate = null; // Réinitialiser la date sélectionnée
+    selectedCity = null;
   });
 
 
