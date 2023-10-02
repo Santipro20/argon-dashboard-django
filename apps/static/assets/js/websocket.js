@@ -39,7 +39,7 @@ window.sendFiltersDataToServer = sendFiltersDataToServer;
 function updateValues(updatedData) {
   document.getElementById("number_of_deliveries").innerHTML = updatedData.number_of_deliveries;
   document.getElementById("porcentage_km").innerHTML = updatedData.porcentage_km + "%";
-  document.getElementById("value_km").innerHTML = "Km économisé soit " + updatedData.value_km + "km";
+  document.getElementById("value_km").innerHTML = "Distance économisé soit " + updatedData.value_km + "km";
   document.getElementById("value_h").innerHTML = "Temps économisé soit " + updatedData.value_h + "h";
   document.getElementById("porcentage_h").innerHTML = updatedData.porcentage_h + "%";
   document.getElementById("value_e").innerHTML = "CO2 économisé soit " + updatedData.value_e + " kg";
