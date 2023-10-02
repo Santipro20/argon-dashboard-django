@@ -525,11 +525,13 @@ pre {
   .container, .container-sm, .container-md, .container-lg, .container-xl {
     max-width: 1140px; } }
 
+
 .row {
   display: flex;
   flex-wrap: wrap;
   margin-right: -15px;
-  margin-left: -15px; }
+  margin-left: -15px;
+}
 
 .no-gutters {
   margin-right: 0;
@@ -548,7 +550,8 @@ pre {
   position: relative;
   width: 100%;
   padding-right: 15px;
-  padding-left: 15px; }
+  padding-left: 15px; 
+}
 
 .col {
   flex-basis: 0;
@@ -14244,7 +14247,7 @@ button.bg-lighter:focus {
   background: linear-gradient(87deg, #C9D200 0, #C9FF00 100%) !important; }
 
 .bg-gradient-indigo {
-  background: linear-gradient(87deg, #5603ad 0, #9d03ad 100%) !important; }
+  background: linear-gradient(87deg, #57AB27 0, #C9D200 100%) !important; }
 
 .bg-gradient-purple {
   background: linear-gradient(87deg, #8965e0 0, #bc65e0 100%) !important; }

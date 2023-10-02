@@ -1034,8 +1034,8 @@ $(document).ready(function() {
 	});
   
 	$('#contaminante2-button').click(function() {
-	  salesChart.data.datasets[0].label = 'Émissions de NOx en g';
-	  salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'G de NOx';
+	  salesChart.data.datasets[0].label = 'Émissions de NOx en Kg';
+	  salesChart.options.scales.xAxes[0].scaleLabel.labelString = 'Kg de NOx';
 	  updateChartWithData(salesChart, [VUL_NOx,deki_vul_NOx, deki_NOx]);
 	});
 
@@ -1063,7 +1063,7 @@ $(document).ready(function() {
                     ticks: {
                         beginAtZero: true,
                         callback: function(value) {
-                            return '$' + value + 'k';
+                            return  value ;
                         }
                     },
                     scaleLabel: {

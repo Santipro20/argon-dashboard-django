@@ -26,7 +26,7 @@
                       <span class="h2 font-weight-bold mb-0" id="number_of_deliveries">{{number_of_deliveries}}</span>
                     </div>
                     <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                      <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
                         <i class="ni ni-delivery-fast"></i>
                       </div>
                     </div>
@@ -44,7 +44,7 @@
                       <span class="h2 font-weight-bold mb-0" id="porcentage_e">{{porcentage_e}}%</span>
                     </div>
                     <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+                      <div class="icon icon-shape bg-gradient-apple text-white rounded-circle shadow">
                         <i class="ni ni-world"></i>
                       </div>
                     </div>
@@ -62,7 +62,7 @@
                       <span class="h2 font-weight-bold mb-0" id="porcentage_km" >{{porcentage_km}}%</span>
                     </div>
                     <div class="col-auto">
-                      <div class="icon icon-shape bg-gradient-apple text-white rounded-circle shadow">
+                      <div class="icon icon-shape bg-gradient-indigo text-white rounded-circle shadow">
                         <i class="fa-solid fa-road"></i>
                       </div>
                     </div>
@@ -96,7 +96,7 @@
     <!-- Page content -->
     <div class="container-fluid mt--6">
       <div class="row">
-        <div class="col-xl-8">
+        <div class="col-xl-8 row_spa">
           <div class="card bg-default">
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
@@ -127,7 +127,7 @@
 
                         if (gasText.includes("PM")) {
                             unitText = "ppm";
-                        } else if (gasText !== "CO2") {
+                        } else if (gasText !== "CO2" && gasText !== "NOx" ) {
                             unitText = "g";
                         }
                         $("#graph-title").text("Émissions de " + gasText +" par type de véhicule" +" ("+unitText+")" );
@@ -156,13 +156,13 @@
           </div>
         </div>
         
-        <div class="col-xl-4">
+        <div class="col-xl-4 row_spa">
           <div class="card">
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
-                  <h5 class="h3 mb-0">Émissions d'équivalent économisées</h5>
+                  <h5 class="h3 mb-0">Correspondance des économies en CO2</h5>
                 </div>
                 <div class="arrow-buttons">
                   <button type="button" class="btn btn-primary btn-sm" id="retourButton">&larr; </button>
@@ -323,7 +323,7 @@
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <h5 class="card-title text-uppercase text-muted mb-0">Travailleurs moyens</h5>
+                          <h5 class="card-title text-uppercase text-muted mb-0">Journée des travaille d'un salarié</h5>
                           <span class="h2 font-weight-bold mb-0" id="travailleur_moyen">{{travailleur_moyen}}</span>
                         </div>
                         <div class="col-auto">
@@ -432,6 +432,7 @@
           showCurrentCards();
           </script>
       </div>
+
       <div class="row">
         <div class="col-xl-8">
           <div class="card">
@@ -498,7 +499,7 @@
               <div class="row align-items-center">
                 <div class="col">
                   <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
-                  <h3 class="mb-0">Indicateurs d'Empreinte Carbone dans les Livraisons (KPS)</h3>
+                  <h3 class="mb-0">Indicateurs d'Empreinte Carbone</h3>
                 </div>
               </div>
             </div>
@@ -514,7 +515,7 @@
                 <tbody>
                   <tr>
                     <th scope="row">
-                      Par chaque livraison    
+                      Par livraison    
                     </th>
                     <td id="livra_KPI">
                       {{livra_KPI}} Kg
@@ -522,7 +523,7 @@
                   </tr>
                   <tr>
                     <th scope="row">
-                      Par chaque km
+                      Par kilometre
                     </th>
                     <td id="km_KPI">
                       {{km_KPI}} Kg 
@@ -530,7 +531,7 @@
                   </tr>
                   <tr>
                     <th scope="row">
-                      Par chaque colis
+                      Par colis
                     </th>
                     <td id="coli_KPI">
                       {{coli_KPI}} Kg 
@@ -538,7 +539,7 @@
                   </tr>
                   <tr>
                     <th scope="row">
-                      Par chaque kilos de poids
+                      Par kilo livré
                     </th>
                     <td id="poids_KPI">
                       {{poids_KPI}} G 
@@ -549,12 +550,12 @@
                       Par m&sup2 de congestion évitée    
                     </th>
                     <td id="m2_KPI">
-                      {{m2_KPI}} G
+                      {{m2_KPI}} Kg
                     </td>
                   </tr>
                   <tr>
                     <th scope="row">
-                      Par chaque de heure passé
+                      Par heure éviteé
                     </th>
                     <td id="temps">
                       {{temps}} Kg 
@@ -618,13 +619,5 @@
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
   <script src="/static/assets/js/websocket.js"></script>
-
-
-
-  
-
-
-
-
 
 {% endblock javascripts %}

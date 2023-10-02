@@ -1460,7 +1460,7 @@ def graph_CO2(stored_selected_date, selected_city, newuser=None):
 
             # https://ww2.arb.ca.gov/sites/default/files/classic/cc/inventory/pubs/reports/2000_2014/ghg_inventory_00-14_technical_support_document.pdf *
             N2OP =  0.0007518 #g / kWh
-            NOxP = 420/1000 #g / kWH
+            NOxP = 420/1000 #Kg / kWH
             # The French electricity grid only produces gases and pollutants related to power plants, and other renewable sources
 
 
@@ -2189,7 +2189,7 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             weight_colis = sum(df_colis_detec['final_weight_2'].fillna(0))
             weight_eco_CO2 = round(emi_total/weight_colis*1000, 3)
             time_eco_CO2 = round(emi_total/time_saved_total, 3)
-            congestion_eco_CO2 = round(emi_total/SC_s*1000, 3)
+            congestion_eco_CO2 = round(emi_total/SC_s, 3)
             print(time_eco_CO2)
             result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2)     
         
