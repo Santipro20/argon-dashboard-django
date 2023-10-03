@@ -238,7 +238,7 @@ def get_data_merchants():
     cache.set('get_data_merchants' , result, timeout=25020)
     return result
 
-def num_delivery(stored_selected_date, selected_city,newuser=None):  
+def num_delivery(stored_selected_date, selected_city,newuser=None): 
 
     cache_key =f'num_delivery_{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
@@ -250,15 +250,6 @@ def num_delivery(stored_selected_date, selected_city,newuser=None):
         df_merchants = get_data_merchants()
         df_geo_task = get_data_cydi()
 
-        if stored_selected_date is not None:
-            st, en = stored_selected_date.strip('()[]').split(' to ')
-            st = pd.to_datetime(st, format='%d/%m/%Y')
-            en = pd.to_datetime(en, format='%d/%m/%Y')
-            st = st.tz_localize(df['end_date'].dt.tz)
-            en = en.tz_localize(df['end_date'].dt.tz)
-            df = df[(df['end_date'] >= st) & (df['end_date'] <= en)]
-        else: 
-            df = df
 
         if selected_city is not None:
             def city_to_id(selected_city):
@@ -281,77 +272,90 @@ def num_delivery(stored_selected_date, selected_city,newuser=None):
         else: 
             df=df
 
-        
+        print(df)  
+
         if newuser is not None:
-            if newuser == 'group_id=1' or newuser == '1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
-            elif newuser == 'team_id=2' or newuser == '2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
-            elif newuser == 'team_id=3' or newuser == '3':
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
-            elif newuser == 'team_id=9' or newuser == '9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
-            elif newuser == 'team_id=10' or newuser == '10':
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
-            elif newuser == 'team_id=11' or newuser == '11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
-            elif newuser == 'team_id=13' or newuser == '13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
-            elif newuser == 'team_id=14' or newuser == '14':
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
-            elif newuser == 'team_id=15' or newuser == '15':
+            elif newuser == 'team_id=15' or newuser == 15:
                 df = df[df['team_id'] == 15]
-            elif newuser == 'team_id=16' or newuser == '16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
-            elif newuser == 'team_id=17' or newuser == '17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
-            elif newuser == 'team_id=18' or newuser == '18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
-            elif newuser == 'team_id=19' or newuser == '19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
-            elif newuser == 'team_id=20' or newuser == '20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
-            elif newuser == 'team_id=22' or newuser == '22':
+            elif newuser == 'team_id=22' or newuser == 22:
                 df = df[df['team_id'] == 22]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
-            elif newuser == 'merchant_id=605' or newuser == '605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
-            elif newuser == 'merchant_id=607' or newuser == '607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
-            elif newuser == 'merchant_id=609' or newuser == '609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
-            elif newuser == 'merchant_id=610' or newuser == '610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
-            elif newuser == 'merchant_id=641' or newuser == '641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
-            elif newuser == 'merchant_id=649' or newuser == '649':
+            elif newuser == 'merchant_id=649' or newuser == 649 :
                 df = df[df['merchant_id_course'] == 649]
-            elif newuser == 'merchant_id=650' or newuser == '650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
-            elif newuser == 'merchant_id=651' or newuser == '651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
-            elif newuser == 'merchant_id=652' or newuser == '652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
             else:
                 df= pd.DataFrame(columns=df.columns)
         else:
             df=df
+        
+
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
+            st = pd.to_datetime(st, format='%d/%m/%Y')
+            en = pd.to_datetime(en, format='%d/%m/%Y')
+            df['end_date'] = pd.to_datetime(df['end_date'])
+            st = st.tz_localize(df['end_date'].dt.tz)
+            en = en.tz_localize(df['end_date'].dt.tz)
+            df = df[(df['end_date'] >= st) & (df['end_date'] <= en)]
+        else: 
+            df = df
 
 
         if df.empty:
@@ -409,130 +413,130 @@ def CO2(stored_selected_date, selected_city, newuser=None):
             df_geo_task=df_geo_task
 
         if newuser is not None:
-            if newuser == 'group_id=1' or newuser == '1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=2' or newuser == '2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=3' or newuser == '3':
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=9' or newuser == '9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=10' or newuser == '10':
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=11' or newuser == '11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=13' or newuser == '13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=14' or newuser == '14':
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=15' or newuser == '15':
+            elif newuser == 'team_id=15' or newuser == 15:
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=16' or newuser == '16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=17' or newuser == '17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=18' or newuser == '18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=19' or newuser == '19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=20' or newuser == '20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=22' or newuser == '22':
+            elif newuser == 'team_id=22' or newuser ==22:
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605' or newuser == '605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607' or newuser == '607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609' or newuser == '609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610' or newuser == '610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641' or newuser == '641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649' or newuser == '649':
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650' or newuser == '650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651' or newuser == '651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652' or newuser == '652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
@@ -887,130 +891,130 @@ def eco_km(stored_selected_date, selected_city, newuser=None ):
             df_geo_task=df_geo_task
 
         if newuser is not None:
-            if newuser == 'group_id=1' or newuser == '1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=2' or newuser == '2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=3' or newuser == '3':
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=9' or newuser == '9' :
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=10' or newuser == '10' :
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=11' or newuser == '11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=13' or newuser == '13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=14' or newuser == '14':
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=15' or newuser == '15':
+            elif newuser == 'team_id=15' or newuser == 15:
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=16' or newuser == '16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=17' or newuser == '17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=18' or newuser == '18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=19' or newuser == '19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=20' or newuser == '20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=22' or newuser == '22':
+            elif newuser == 'team_id=22' or newuser == 22:
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605' or newuser == '605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607' or newuser == '607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609' or newuser == '609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610' or newuser == '610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641' or newuser == '641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649' or newuser == '649':
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650' or newuser == '650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651' or newuser == '651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652' or newuser == '652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
@@ -1085,130 +1089,130 @@ def time_eco(stored_selected_date, selected_city, newuser=None):
             df_geo_task=df_geo_task
         
         if newuser is not None:
-            if newuser == 'group_id=1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=3':
+            elif newuser == 'team_id=3'or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=10':
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=14':
+            elif newuser == 'team_id=14'or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=15':
+            elif newuser == 'team_id=15'or newuser == 15:
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=22':
+            elif newuser == 'team_id=22' or newuser == 21:
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649':
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
@@ -1287,130 +1291,130 @@ def graph_CO2(stored_selected_date, selected_city, newuser=None):
         if newuser is not None:
             CO2_fun = CO2(stored_selected_date,selected_city, newuser)
             emi,emi_total,driving,cycling,deki_vul  = CO2_fun
-            if newuser == 'group_id=1'or newuser == '1' :
+            if newuser == 'group_id=1'or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=2' or newuser == '2' :
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=3' or newuser == '3' :
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=9' or newuser == '9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=10' or newuser == '10' :
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=11' or newuser == '11' :
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=13' or newuser == '13' :
+            elif newuser == 'team_id=13' or newuser == 13 :
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=14' or newuser == '14' :
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=15' or newuser == '15' :
+            elif newuser == 'team_id=15' or newuser == 15 :
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=16' or newuser == '16' :
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=17' or newuser == '17' :
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=18' or newuser == '18' :
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=19' or newuser == '19' :
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=20' or newuser == '20' :
+            elif newuser == 'team_id=20' or newuser == 20 :
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=22' or newuser == '22' :
+            elif newuser == 'team_id=22' or newuser == 22 :
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605' or newuser == '605' :
+            elif newuser == 'merchant_id=605' or newuser == 605 :
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607' or newuser == '607' :
+            elif newuser == 'merchant_id=607' or newuser == 607 :
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609' or newuser == '609' :
+            elif newuser == 'merchant_id=609' or newuser == 609 :
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610' or newuser == '610' :
+            elif newuser == 'merchant_id=610' or newuser == 610 :
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641'or newuser == '641' :
+            elif newuser == 'merchant_id=641'or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649' or newuser == '649' :
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650' or newuser == '650' :
+            elif newuser == 'merchant_id=650' or newuser == 650 :
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651' or newuser == '651' :
+            elif newuser == 'merchant_id=651' or newuser == 651 :
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652' or newuser == '652' :
+            elif newuser == 'merchant_id=652' or newuser == 652 :
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
@@ -1596,130 +1600,130 @@ def space_eco(stored_selected_date, selected_city, newuser=None):
             df_geo_task=df_geo_task    
 
         if newuser is not None:
-            if newuser == 'group_id=1' or newuser == '1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=2' or newuser == '2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=3' or newuser == '3':
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=9' or newuser == '9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=10' or newuser == '10':
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=11' or newuser == '11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=13' or newuser == '13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=14' or newuser == '14':
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=15' or newuser == '15':
+            elif newuser == 'team_id=15' or newuser == 15:
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=16' or newuser == '16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=17' or newuser == '17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=18' or newuser == '18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=19' or newuser == '19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=20' or newuser == '20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'team_id=22' or newuser == '22':
+            elif newuser == 'team_id=22' or newuser == 22:
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605' or newuser == '605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607' or newuser == '607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609' or newuser == '609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610' or newuser == '610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641' or newuser == '641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649' or newuser == '649':
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650' or newuser == '650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651' or newuser == '651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652' or newuser == '652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
@@ -1813,7 +1817,7 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             km_saved, km_saved_total = eco_km(stored_selected_date,selected_city , newuser)
             time_saved, time_saved_total = time_eco(stored_selected_date, selected_city , newuser)
             SC_s,SC_vul,SC_deki = space_eco(stored_selected_date, selected_city ,newuser)
-            if newuser == 'group_id=1' or newuser == '1':
+            if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
@@ -1821,152 +1825,152 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)] 
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=2' or newuser == '2':
+            elif newuser == 'team_id=2' or newuser == 2:
                 df = df[df['team_id'] == 2]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=3' or newuser == '3':
+            elif newuser == 'team_id=3' or newuser == 3:
                 df = df[df['team_id'] == 3]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=4' or newuser == '4':
+            elif newuser == 'team_id=4' or newuser == 4:
                 df = df[df['team_id'] == 4]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=6' or newuser == '6':
+            elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=9' or newuser == '9':
+            elif newuser == 'team_id=9' or newuser == 9:
                 df = df[df['team_id'] == 9]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=10' or newuser == '10':
+            elif newuser == 'team_id=10' or newuser == 10:
                 df = df[df['team_id'] == 10]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=11' or newuser == '11':
+            elif newuser == 'team_id=11' or newuser == 11:
                 df = df[df['team_id'] == 11]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=13' or newuser == '13':
+            elif newuser == 'team_id=13' or newuser == 13:
                 df = df[df['team_id'] == 13]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=14' or newuser == '14':
+            elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=15' or newuser == '15':
+            elif newuser == 'team_id=15' or newuser == 15:
                 df = df[df['team_id'] == 15]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=16' or newuser == '16':
+            elif newuser == 'team_id=16' or newuser == 16:
                 df = df[df['team_id'] == 16]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=17' or newuser == '17':
+            elif newuser == 'team_id=17' or newuser == 17:
                 df = df[df['team_id'] == 17]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=18' or newuser == '18':
+            elif newuser == 'team_id=18' or newuser == 18:
                 df = df[df['team_id'] == 18]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=19' or newuser == '19':
+            elif newuser == 'team_id=19' or newuser == 19:
                 df = df[df['team_id'] == 19]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=20' or newuser == '20':
+            elif newuser == 'team_id=20' or newuser == 20:
                 df = df[df['team_id'] == 20]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'team_id=22' or newuser == '22':
+            elif newuser == 'team_id=22' or newuser == 22:
                 df = df[df['team_id'] == 22]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=606' or newuser == '606':
+            elif newuser == 'merchant_id=606' or newuser == 606:
                 df = df[df['merchant_id_course'] == 606]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=605' or newuser == '605':
+            elif newuser == 'merchant_id=605' or newuser == 605:
                 df = df[df['merchant_id_course'] == 605]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=607' or newuser == '607':
+            elif newuser == 'merchant_id=607' or newuser == 607:
                 df = df[df['merchant_id_course'] == 607]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=609' or newuser == '609':
+            elif newuser == 'merchant_id=609' or newuser == 609:
                 df = df[df['merchant_id_course'] == 609]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=610' or newuser == '610':
+            elif newuser == 'merchant_id=610' or newuser == 610:
                 df = df[df['merchant_id_course'] == 610]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=617' or newuser == '617':
+            elif newuser == 'merchant_id=617' or newuser == 617:
                 df = df[df['merchant_id_course'] == 617]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=630' or newuser == '630':
+            elif newuser == 'merchant_id=630' or newuser == 630:
                 df = df[df['merchant_id_course'] == 630]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=635' or newuser == '635':
+            elif newuser == 'merchant_id=635' or newuser == 635:
                 df = df[df['merchant_id_course'] == 635]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=640' or newuser == '640':
+            elif newuser == 'merchant_id=640' or newuser == 640:
                 df = df[df['merchant_id_course'] == 640]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=641' or newuser == '641':
+            elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=649' or newuser == '649':
+            elif newuser == 'merchant_id=649' or newuser == 649:
                 df = df[df['merchant_id_course'] == 649]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=650' or newuser == '650':
+            elif newuser == 'merchant_id=650' or newuser == 650:
                 df = df[df['merchant_id_course'] == 650]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=651' or newuser == '651':
+            elif newuser == 'merchant_id=651' or newuser == 651:
                 df = df[df['merchant_id_course'] == 651]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]
                 df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
-            elif newuser == 'merchant_id=652' or newuser == '652':
+            elif newuser == 'merchant_id=652' or newuser == 652:
                 df = df[df['merchant_id_course'] == 652]
                 id_f_task = df['id_task']
                 df_geo_task = df_geo_task[df_geo_task['id'].isin(id_f_task)]

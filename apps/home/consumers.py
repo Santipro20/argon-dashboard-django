@@ -16,7 +16,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         selected_city = text_data_json.get('selected_city')
         print("Fecha seleccionada:", stored_selected_date)
         print("Nuevo usuario:", newuser)
-        print("Nuevo usuario:", selected_city)
+        print("Nueva city:", selected_city)
 
         if newuser is not None:
             num_delivery_result = num_delivery(stored_selected_date, selected_city,newuser) 

@@ -31,67 +31,67 @@ def index(request,newuser=None):
         sp = space_eco(stored_selected_date, selected_city ,newuser)
         KPI = KPI_CO2(stored_selected_date,selected_city,newuser)
 
-        if newuser == 'group_id=1' or newuser == '1':
+        if newuser == 'group_id=1' or newuser == 1:
             user ='Group'
-        elif newuser == 'team_id=2' or newuser == '2':
+        elif newuser == 'team_id=2' or newuser == 2:
             user = 'Prestataire'
-        elif newuser == 'team_id=3' or newuser == '3':
+        elif newuser == 'team_id=3' or newuser == 3:
             user = 'Prestataire'
-        elif newuser == 'team_id=4' or newuser == '4':
+        elif newuser == 'team_id=4' or newuser == 4:
             user = 'Prestataire'
-        elif newuser == 'team_id=6' or newuser == '6':
+        elif newuser == 'team_id=6' or newuser == 6:
             user = 'Prestataire'
-        elif newuser == 'team_id=9' or newuser == '9':
+        elif newuser == 'team_id=9' or newuser == 9:
             user = 'Prestataire'
-        elif newuser == 'team_id=10' or newuser == '10':
+        elif newuser == 'team_id=10' or newuser == 10:
             user = 'Prestataire'
-        elif newuser == 'team_id=11' or newuser == '11':
+        elif newuser == 'team_id=11' or newuser == 11:
             user = 'Prestataire'
-        elif newuser == 'team_id=13' or newuser == '13':
+        elif newuser == 'team_id=13' or newuser == 13:
             user = 'Prestataire'
-        elif newuser == 'team_id=14' or newuser == '14':
+        elif newuser == 'team_id=14' or newuser == 14:
             user = 'Prestataire'
-        elif newuser == 'team_id=15' or newuser == '15':
+        elif newuser == 'team_id=15' or newuser == 15:
             user = 'Prestataire'
-        elif newuser == 'team_id=16' or newuser == '16':
+        elif newuser == 'team_id=16' or newuser == 16:
             user = 'Prestataire'
-        elif newuser == 'team_id=17' or newuser == '17':
+        elif newuser == 'team_id=17' or newuser == 17:
             user = 'Prestataire'
-        elif newuser == 'team_id=18' or newuser == '18':
+        elif newuser == 'team_id=18' or newuser == 18:
             user = 'Prestataire'
-        elif newuser == 'team_id=19' or newuser == '19':
+        elif newuser == 'team_id=19' or newuser == 19:
             user = 'Prestataire'
-        elif newuser == 'team_id=20' or newuser == '20':
+        elif newuser == 'team_id=20' or newuser == 20:
             user = 'Prestataire'
-        elif newuser == 'team_id=22' or newuser == '22':
+        elif newuser == 'team_id=22' or newuser == 22:
             user = 'Prestataire'
-        elif newuser == 'merchant_id=606' or newuser == '606':
+        elif newuser == 'merchant_id=606' or newuser == 606:
             user = 'Merchant'
-        elif newuser == 'merchant_id=605' or newuser == '605':
+        elif newuser == 'merchant_id=605' or newuser == 605:
             user = 'Merchant'
-        elif newuser == 'merchant_id=607' or newuser == '607':
+        elif newuser == 'merchant_id=607' or newuser == 607:
             user = 'Merchant'
-        elif newuser == 'merchant_id=609' or newuser == '609':
+        elif newuser == 'merchant_id=609' or newuser == 609:
             user = 'Merchant'
-        elif newuser == 'merchant_id=610' or newuser == '610':
+        elif newuser == 'merchant_id=610' or newuser == 610:
             user = 'Merchant'
-        elif newuser == 'merchant_id=617' or newuser == '617':
+        elif newuser == 'merchant_id=617' or newuser == 617:
             user = 'Merchant'
-        elif newuser == 'merchant_id=630' or newuser == '630':
+        elif newuser == 'merchant_id=630' or newuser == 630:
             user = 'Merchant'
-        elif newuser == 'merchant_id=635' or newuser == '635':
+        elif newuser == 'merchant_id=635' or newuser == 635:
             user = 'Merchant'
-        elif newuser == 'merchant_id=640' or newuser == '640':
+        elif newuser == 'merchant_id=640' or newuser == 640:
             user = 'Merchant'
-        elif newuser == 'merchant_id=641' or newuser == '641':
+        elif newuser == 'merchant_id=641' or newuser == 641:
             user = 'Merchant'
-        elif newuser == 'merchant_id=649' or newuser == '649':
+        elif newuser == 'merchant_id=649' or newuser == 649:
             user = 'Merchant'
-        elif newuser == 'merchant_id=650' or newuser == '650':
+        elif newuser == 'merchant_id=650' or newuser == 650:
             user = 'Merchant'
-        elif newuser == 'merchant_id=651' or newuser == '651':
+        elif newuser == 'merchant_id=651' or newuser == 651:
             user = 'Merchant'
-        elif newuser == 'merchant_id=652' or newuser == '652':
+        elif newuser == 'merchant_id=652' or newuser == 652:
             user = 'Merchant'
     else:
         num_delivery_result = num_delivery(stored_selected_date,selected_city) 
