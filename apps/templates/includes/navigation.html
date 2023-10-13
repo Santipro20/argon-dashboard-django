@@ -60,7 +60,47 @@
           list-style: none; /* Eliminar el ::marker en elementos de lista con la clase .nav-item */
          }
       </style>
-     
+   <div class=" period-selector">
+     <div class="dropdown" id="navbar-dropdown-calendar">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+        <i class="fas fa-calendar"></i>
+        <span id="selected-period"></span>
+      </button> 
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" data-period="Journalier">
+          <i class="fas fa-calendar-day"></i> Journalier
+        </a></li>
+        <li><a class="dropdown-item" href="#" data-period="Hebdomadaire">
+          <i class="fas fa-calendar-week"></i> Hebdomadaire
+        </a></li>
+        <li><a class="dropdown-item" href="#" data-period="Mensuel">
+          <i class="fa-regular fa-calendar"></i> Mensuel
+        </a></li>
+      </ul>
+    </div>
+  </div>
+    <script>
+      // Obtiene el botón desplegable.
+      const dropdown = document.querySelector("#navbar-dropdown-calendar");
+    
+      // Obtiene el elemento que mostrará el periodo seleccionado.
+      const selectedPeriodElement = document.querySelector("#selected-period");
+    
+      // Establece el periodo seleccionado por defecto.
+      selectedPeriodElement.textContent = "Journalier";
+    
+      // Agrega un evento de clic a cada opción de la lista desplegable.
+      dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          // Obtiene el periodo seleccionado.
+          const selectedPeriod = item.getAttribute("data-period");
+    
+          // Establece el periodo seleccionado en el botón.
+          selectedPeriodElement.textContent = selectedPeriod;
+        });
+      });
+    </script>
+    
      <div class="input-group-append">
       <button id="confirmDate" class="btn btn-primary">Confirmer</button>
       <button id="cancelDate" class="btn btn-warning">Annuler</button>
@@ -109,24 +149,21 @@
 
 <div id="dynamic-content"></div>
 
-
-
-<link rel="stylesheet" href="static/assets/datepick/flatpickr/dist/flatpickr.css">
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
 
-<script src="static/assets/datepick/flatpickr/dist/flatpickr.min.js"></script>
 
-<script src="/static/assets/js/main.js"></script>
-
-<script src="/static/assets/js/websocket.js"></script>
 
 <script> 
 document.addEventListener("DOMContentLoaded", function () {
   var selectedDate = null; // Variable pour stocker la date sélectionnée
+  var selectedCity = null; // Variable pour stocker la ville sélectionnée
+  var selectedPeriod = "Journalier"; // Variable pour stocker la période sélectionnée initialement
 
   var datePickerInput = document.getElementById("datePicker");
+  var confirmDateButton = document.getElementById("confirmDate");
+  var cancelDateButton = document.getElementById("cancelDate");
 
+  // Configurer le calendrier flatpickr
   flatpickr("#datePicker", {
     mode: "range",
     dateFormat: "d/m/Y",
@@ -142,40 +179,48 @@ document.addEventListener("DOMContentLoaded", function () {
     event.stopPropagation(); // Éviter que le clic se propage au body
   });
 
-  document.getElementById("confirmDate").addEventListener("click", function () {
-    var selectedCity = null; 
+  // Gestionnaire d'événements pour les éléments du menu déroulant de la période
+  var dropdownItems = document.querySelectorAll(".dropdown-item");
+  dropdownItems.forEach(function (item) {
+    item.addEventListener("click", function () {
+      // Obtenir la période sélectionnée
+      selectedPeriod = item.getAttribute("data-period");
+    });
+  });
 
-    var checkboxes = document.querySelectorAll('.city-selector input[type="checkbox"]');
-    var ciudadesSeleccionadas = [];
+  confirmDateButton.addEventListener("click", function () {
+    var checkboxes = document.querySelectorAll(".city-selector input[type='checkbox']");
+    var selectedCities = [];
 
     checkboxes.forEach(function (checkbox) {
       if (checkbox.checked) {
-        ciudadesSeleccionadas.push(checkbox.id);
+        selectedCities.push(checkbox.id);
       }
     });
 
-    // Si no se ha seleccionado ninguna ciudad, establecer selectedCity en null
-    selectedCity = ciudadesSeleccionadas.length > 0 ? ciudadesSeleccionadas : null;
+    // Si aucune ville n'est sélectionnée, définir selectedCity sur null
+    selectedCity = selectedCities.length > 0 ? selectedCities : null;
 
-    if (selectedDate || selectedCity) {
+    if (selectedDate || selectedCity || selectedPeriod) {
       console.log("Date sélectionnée:", selectedDate);
-      console.log("Date sélectionnée:", selectedCity);
-      alert("Vous avez sélectionné la date et ville : " + selectedDate + " "+ selectedCity) ;
-      sendFiltersDataToServer(selectedDate, selectedCity); // Envoyer la date au serveur en utilisant WebSockets
+      console.log("Ville sélectionnée:", selectedCity);
+      console.log("Période sélectionnée:", selectedPeriod);
+      alert("Vous avez sélectionné la date, la ville et la période : " + selectedDate + " " + selectedCity + " " + selectedPeriod);
+      sendFiltersDataToServer(selectedDate, selectedCity, selectedPeriod); // Envoyer la date au serveur en utilisant WebSockets
     } else {
-      console.log("Aucune date et ville sélectionnée");
-      alert("Veuillez sélectionner une date et ville avant de confirmer.");
+      console.log("Aucune date, ville ni période sélectionnée");
+      alert("Sélectionnez une date, une ville et une période avant de confirmer.");
     }
   });
 
-  document.getElementById("cancelDate").addEventListener("click", function () {
+  cancelDateButton.addEventListener("click", function () {
     console.log("Sélection de date annulée");
     selectedDate = null; // Réinitialiser la date sélectionnée
-    selectedCity = null;
+    selectedCity = null; // Réinitialiser la ville sélectionnée
+    selectedPeriod = "Journalier"; // Réinitialiser la période sélectionnée
   });
-
-
 });
+
 </script>
 
 

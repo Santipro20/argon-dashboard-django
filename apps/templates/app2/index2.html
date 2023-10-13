@@ -1,0 +1,475 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard 2{% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-primary pb-6">
+      <div class="container-fluid">
+        <div class="header-body">
+          <div class="row align-items-center py-4">
+
+          </div>
+          <!-- Card stats -->
+          <div class="row">
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Livraisons terminées</h5>
+                      <span class="h2 font-weight-bold mb-0" id="number_of_deliveries_1">{{number_of_deliveries}}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+                        <i class="ni ni-delivery-fast"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0" >Colis livrées</h5>
+                      <span class="h2 font-weight-bold mb-0" id="colis">{{colis}}</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-apple text-white rounded-circle shadow">
+                        <i class="fa-solid fa-box"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0" > Kilogrammes livrées</h5>
+                      <span class="h2 font-weight-bold mb-0" id="kilos" >{{kilos}} kg</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-indigo text-white rounded-circle shadow">
+                        <i class="fa-solid fa-weight-hanging"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase text-muted mb-0">Distance parcourue</h5>
+                      <span class="h2 font-weight-bold mb-0" id="distance_par">{{distance_par}} km</span>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-blue text-white rounded-circle shadow">
+                        <i class="fa-solid fa-route"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page content -->
+    <div class="container-fluid mt--6">
+      <div class="row">
+        <div class="col-xl-8 row_spa">
+          <div class="card bg-default">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h5 class="h3 mb-0"  id="graph-title"> Livraisons cumulées dans le temps </h5>
+                </div>
+                <div class="col">
+                  <ul class="nav nav-pills justify-content-end">
+                    <button id="Livraisons" class="btn btn-primary" data-action="Livraisons">Livraisons</button>
+                    <button id="Colis" class="btn btn-primary" data-action="Colis">Colis</button>
+                    <button id="Poids" class="btn btn-primary" data-action="Poids">Poids</button>
+                  </ul>
+                  <script>
+                  $(document).ready(function() {
+                      var originalTitle = $("#graph-title").text();
+                      // Asigna un controlador de eventos solo a los botones dentro de la lista específica
+                      $("#Livraisons, #Colis, #Poids").click(function() {
+                        // Remueve la clase "btn-selected" solo de los botones dentro de la lista específica
+                        $(".nav-pills button.btn-primary").removeClass("btn-selected");
+                        // Agrega la clase "btn-selected" al botón que se ha hecho clic
+                        $(this).addClass("btn-selected");
+
+                        var action2 = $(this).data("action");
+
+                        if (action2 !== "Livraisons") {
+                          $("#graph-title").text(action2 + " cumulée des livraisons au fil du temps");
+                        } else {
+                          $("#graph-title").text(originalTitle);
+                        }
+                      });
+                    });
+
+                    </script>
+                    
+                    <style>
+                    .btn-selected {
+                      background-color: #fb6340; /* Cambia este color al que desees para los botones seleccionados */
+                      color: white; /* Cambia este color al color de texto deseado para los botones seleccionados */
+                      border-color: #fb6340;
+                    }
+                    </style>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Chart -->
+              <div class="chart">
+                <!-- Chart wrapper -->
+                <canvas id="chart-ff" class="chart-canvas" style="display: block; width: 100%;" width="920" height="350"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+              <div class="card-header border-0">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                    <h3 class="mb-0">État de la livraison</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <!-- Projects table -->
+                <table class="table align-items-center table-flush">
+                  <thead class="thead-light">
+                    <tr>
+                      <th scope="col">Statistique</th>
+                      <th scope="col">valeur</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">
+                        Non attribuées
+                      </th>
+                      <td id = "num">
+                        {{num}}
+                      </td>
+          
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        Attribuées
+                      </th>
+                      <td id = "num1">
+                        {{num1}}
+                      </td>
+                 
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        En cours
+                      </th>
+                      <td id = "num2">
+                        {{num2}}
+                      </td>
+                   
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        Terminées
+                      </th>
+                      <td id = "num3">
+                        {{num3}}
+                      </td>
+                    
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                          Échouées
+                      </th>
+                      <td id = "num4">
+                        {{num4}}
+                      </td>
+                    
+                    </tr>
+                    
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-xl-8 row_spa">
+          <div class="card bg-default">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h5 class="h3 mb-0"  id="graph-title2"> Comparaison du temps économisé par type de véhicule</h5>
+                </div>
+                <div class="col">
+                  <ul class="nav nav-pills justify-content-end">
+                    <button id="Temps" class="btn btn-primary primary-set2" data-action="temps">Temps</button>
+                    <button id="Distance" class="btn btn-primary primary-set2" data-action="distance">Distance</button>
+                  </ul>
+                  <script>
+                    $(document).ready(function() {
+                      var originalTitle2 = $("#graph-title2").text();
+                  
+                      // Asigna un controlador de eventos solo a los botones dentro de la lista específica
+                      $("#Temps, #Distance").click(function() {
+                        // Remueve la clase "btn-selected2" solo de los botones dentro de la lista específica
+                        $(".primary-set2 ").removeClass("btn-selected2");
+                        // Agrega la clase "btn-selected2" al botón que se ha hecho clic
+                        $(this).addClass("btn-selected2");
+                  
+                        var action = $(this).data("action");
+                                 
+                        if (action !== "Temps") {
+                          $("#graph-title2").text("Comparaison du " + action + " économisé par type de véhicule");
+                        } else {
+                          $("#graph-title2").text(originalTitle2);
+                        }
+                      });
+                    });
+                  </script>
+                  
+                  <style>
+                    .btn-selected2 {
+                      background-color: #fb6340; /* Cambia este color al que desees para los botones seleccionados */
+                      color: white; /* Cambia este color al color de texto deseado para los botones seleccionados */
+                      border-color: #fb6340;
+                    }
+                  </style>
+
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Chart -->
+              <div class="chart">
+                <!-- Chart wrapper -->
+                <canvas id="chart-vertical" class="chart-canvas" ></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header border-0">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h3 class="mb-0">Performance de livraison</h3>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <!-- Projects table -->
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Statistique</th>
+                    <th scope="col"></th>
+                    <th scope="col">valeur moyenne</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">
+                      Distance
+                    </th>
+                    <td></td>
+                    <td id = "value1">
+                      {{value1}} km
+                    </td>
+        
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      Temps             
+                    </th>
+                    <td></td>
+                    <td id = "value2">
+                      {{value2}} min
+                    </td>
+               
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      Poids
+                    </th>
+                    <td></td>
+                    <td id = "value3">
+                      {{value3}} kg
+                    </td>
+                 
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      Colis
+                    </th>
+                    <td></td>
+                    <td id = "value4">
+                      {{value4}} #
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class = "row">
+        <div class="col-xl-6" >
+          <div class="card">
+            <div class="card-header border-0">
+              <div class="row align-items-center">
+                  <div class="col">
+                    <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                    <h5 class="h3 mb-0"  id="graph-title">Répartition de livraisons par jour</h5>
+                  </div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Chart -->
+              <div class="chart">
+                <!-- Chart wrapper -->
+                
+                <canvas id="chart-donut" class="chart-canvas" ></canvas>
+                
+              </div>
+             
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-6 row_spa">
+          <div class="card bg-default">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Rédigé par Deki ©</h6>
+                  <h5 class="h3 mb-0"  id="graph-title3"> Livraisons par niveau d'Immédiateté</h5>
+                </div>
+                <div class="col">
+                  <ul class="nav nav-pills justify-content-end">
+                    <button id="Immédiateté" class="btn btn-primary primary-set3" data-action="Immédiateté">Immédiateté</button>
+                    <button id="Poids2" class="btn btn-primary primary-set3" data-action="Poids2">Poids</button>
+                  </ul>
+                  <script>
+                    $(document).ready(function() {
+                      var originalTitle3 = $("#graph-title3").text();
+                  
+                      // Asigna un controlador de eventos solo a los botones dentro de la lista específica
+                      $("#Immédiateté, #Poids2").click(function() {
+                        // Remueve la clase "btn-selected2" solo de los botones dentro de la lista específica
+                        $(".primary-set3").removeClass("btn-selected3");
+                        // Agrega la clase "btn-selected2" al botón que se ha hecho clic
+                        $(this).addClass("btn-selected3");
+                  
+                        var action3 = $(this).data("action");
+                                 
+                        if (action3 !== "Immédiateté") {
+                          $("#graph-title3").text("Livraisons en fonction de leur poids");
+                        } else {
+                          $("#graph-title3").text(originalTitle3);
+                        }
+                      });
+                    });
+                  </script>
+                  
+                  <style>
+                    .btn-selected3 {
+                      background-color: #fb6340; /* Cambia este color al que desees para los botones seleccionados */
+                      color: white; /* Cambia este color al color de texto deseado para los botones seleccionados */
+                      border-color: #fb6340;
+                    }
+                  </style>
+
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Chart -->
+              <div class="chart">
+                <!-- Chart wrapper -->
+                <canvas id="chart-u" class="chart-canvas" ></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+
+      </div>
+
+      {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+  <script> 
+  window.value = {{ valueline|safe}}
+  window.value1 = {{ valueline1|safe}}
+  window.value2 = {{ valueline2|safe}}
+  window.temps_d = {{ temps_driving|safe}}
+  window.temps_c = {{ temps_cycling|safe}}
+  window.distance_d = {{ distance_driving|safe}}
+  window.distance_c = {{ distance_cycling|safe}}
+  window.week = {{ days_week|safe}}
+  window.j_0 = {{j_0|safe}}
+  window.j_1 = {{j_1|safe}}
+  window.j_2 = {{j_2|safe}}
+  window.k_1 = {{k_1|safe}}
+  window.k_2 = {{k_2|safe}}
+  window.k_3 = {{k_3|safe}}
+  window.k_4 = {{k_4|safe}} 
+  window.k_5 = {{k_5|safe}} 
+
+
+  window.newuserh = {{ newuserh|default:"null"|safe}}
+
+  </script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+  <script src="/static/assets/js/websocket.js"></script>
+  <script src="/static/assets/js/modul2.js"></script>
+ 
+
+{% endblock javascripts %}

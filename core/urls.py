@@ -10,9 +10,6 @@ from apps.home import views
 urlpatterns = [
     path('admin/', admin.site.urls),          # Django admin route
     path("", include("apps.authentication.urls")), # Auth routes - login / register
-    path("", include("apps.home.urls")) ,            # UI Kits Html files
-
-    path("", views.index, name='root'),
-    re_path(r'^.*\.*', views.pages, name='pages'),
-
+    path("", include("apps.home.urls")) ,            # UI Kits Html file
+    path("app/", include("apps.app2.urls")) ,
 ]

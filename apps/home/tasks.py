@@ -5,7 +5,8 @@ from itertools import zip_longest
 import numpy as np
 import copy
 import re
-
+import json
+from statistics import mean
 
 
 def get_data_id():
@@ -52,10 +53,11 @@ def get_data_id():
         result = df
     
     # save the result in cache
-    cache.set('get_data_4', result, timeout=43020)
+    cache.set('get_data_4', result, timeout=50000)
     return result
 
 def get_data_cydi():
+
     # veryfy if the result is in cache
     cached_result = cache.get('get_data_2')
     if cached_result is not None:
@@ -202,7 +204,7 @@ def get_data_cydi():
         result = df_geo_task
     
     # save the result in cache
-    cache.set('get_data_2', result, timeout=45000)
+    cache.set('get_data_2', result, timeout=50000)
     return result
 
 def get_data_livra():
@@ -221,10 +223,11 @@ def get_data_livra():
         result = df_packages
     
     # save the result in cache
-    cache.set('get_data_3', result, timeout=42000)
+    cache.set('get_data_3', result, timeout=50000)
     return result
 
 def get_data_merchants():
+
     # veryfy if the result is in cache
     cached_result = cache.get('get_data_merchants')
 
@@ -235,10 +238,38 @@ def get_data_merchants():
         result = df_merchants
     
     # save the result in cache
-    cache.set('get_data_merchants' , result, timeout=25020)
+    cache.set('get_data_merchants' , result, timeout=50000)
     return result
 
-def num_delivery(stored_selected_date, selected_city,newuser=None): 
+def get_data_courses():
+    # veryfy if the result is in cache
+    cached_result = cache.get('get_data_courses')
+
+    if cached_result is not None:
+        return cached_result
+    else:
+        df_courses = pd.DataFrame(list(Courses.objects.all().values()))
+        result = df_courses
+    
+    # save the result in cache
+    cache.set('get_data_courses' , result, timeout=50000)
+    return result
+
+def get_data_task():
+    # veryfy if the result is in cache
+    cached_result = cache.get('get_data_task')
+
+    if cached_result is not None:
+        return cached_result
+    else:
+        df_tasks = pd.DataFrame(list(Tasks.objects.all().values()))
+        result = df_tasks
+
+    # save the result in cache
+    cache.set('get_data_task' , result, timeout=50000)
+    return result
+
+def num_delivery(stored_selected_date, selected_city,newuser=None):
 
     cache_key =f'num_delivery_{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
@@ -249,7 +280,6 @@ def num_delivery(stored_selected_date, selected_city,newuser=None):
         df = get_data_id()
         df_merchants = get_data_merchants()
         df_geo_task = get_data_cydi()
-
 
         if selected_city is not None:
             def city_to_id(selected_city):
@@ -272,73 +302,71 @@ def num_delivery(stored_selected_date, selected_city,newuser=None):
         else: 
             df=df
 
-        print(df)  
-
         if newuser is not None:
-            if newuser == 'group_id=1' or newuser == 1:
+            if newuser == 'group_id=1' or newuser == 1 or newuser == 'index2.html/group_id=1':
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
                 merchant_trd = merchant_trd[['id']]
                 merchant_trd_ids = merchant_trd['id'].tolist()
                 df = df[df['merchant_id_course'].isin(merchant_trd_ids)]
-            elif newuser == 'team_id=2' or newuser == 2:
+            elif newuser == 'team_id=2' or newuser == 2 :
                 df = df[df['team_id'] == 2]
-            elif newuser == 'team_id=3' or newuser == 3:
+            elif newuser == 'team_id=3' or newuser == 3 :
                 df = df[df['team_id'] == 3]
-            elif newuser == 'team_id=4' or newuser == 4:
+            elif newuser == 'team_id=4' or newuser == 4 : 
                 df = df[df['team_id'] == 4]
             elif newuser == 'team_id=6' or newuser == 6:
                 df = df[df['team_id'] == 6]
-            elif newuser == 'team_id=9' or newuser == 9:
+            elif newuser == 'team_id=9' or newuser == 9 :
                 df = df[df['team_id'] == 9]
-            elif newuser == 'team_id=10' or newuser == 10:
+            elif newuser == 'team_id=10' or newuser == 10 :
                 df = df[df['team_id'] == 10]
-            elif newuser == 'team_id=11' or newuser == 11:
+            elif newuser == 'team_id=11' or newuser == 11 :
                 df = df[df['team_id'] == 11]
-            elif newuser == 'team_id=13' or newuser == 13:
+            elif newuser == 'team_id=13' or newuser == 13 :
                 df = df[df['team_id'] == 13]
             elif newuser == 'team_id=14' or newuser == 14:
                 df = df[df['team_id'] == 14]
-            elif newuser == 'team_id=15' or newuser == 15:
+            elif newuser == 'team_id=15' or newuser == 15 :
                 df = df[df['team_id'] == 15]
-            elif newuser == 'team_id=16' or newuser == 16:
+            elif newuser == 'team_id=16' or newuser == 16 :
                 df = df[df['team_id'] == 16]
-            elif newuser == 'team_id=17' or newuser == 17:
+            elif newuser == 'team_id=17' or newuser == 17 :
                 df = df[df['team_id'] == 17]
-            elif newuser == 'team_id=18' or newuser == 18:
+            elif newuser == 'team_id=18' or newuser == 18 :
                 df = df[df['team_id'] == 18]
-            elif newuser == 'team_id=19' or newuser == 19:
+            elif newuser == 'team_id=19' or newuser == 19 :
                 df = df[df['team_id'] == 19]
-            elif newuser == 'team_id=20' or newuser == 20:
+            elif newuser == 'team_id=20' or newuser == 20 :
                 df = df[df['team_id'] == 20]
             elif newuser == 'team_id=22' or newuser == 22:
                 df = df[df['team_id'] == 22]
-            elif newuser == 'merchant_id=606' or newuser == 606:
+            elif newuser == 'merchant_id=606' or newuser == 606 :
                 df = df[df['merchant_id_course'] == 606]
-            elif newuser == 'merchant_id=605' or newuser == 605:
+            elif newuser == 'merchant_id=605' or newuser == 605 :
                 df = df[df['merchant_id_course'] == 605]
-            elif newuser == 'merchant_id=607' or newuser == 607:
+            elif newuser == 'merchant_id=607' or newuser == 607 :
                 df = df[df['merchant_id_course'] == 607]
-            elif newuser == 'merchant_id=609' or newuser == 609:
+            elif newuser == 'merchant_id=609' or newuser == 609 :
                 df = df[df['merchant_id_course'] == 609]
-            elif newuser == 'merchant_id=610' or newuser == 610:
+            elif newuser == 'merchant_id=610' or newuser == 610 :
                 df = df[df['merchant_id_course'] == 610]
-            elif newuser == 'merchant_id=617' or newuser == 617:
+            elif newuser == 'merchant_id=617' or newuser == 617 :
                 df = df[df['merchant_id_course'] == 617]
-            elif newuser == 'merchant_id=630' or newuser == 630:
+            elif newuser == 'merchant_id=630' or newuser == 630 :
                 df = df[df['merchant_id_course'] == 630]
-            elif newuser == 'merchant_id=635' or newuser == 635:
+            elif newuser == 'merchant_id=635' or newuser == 635 :
                 df = df[df['merchant_id_course'] == 635]
-            elif newuser == 'merchant_id=640' or newuser == 640:
+            elif newuser == 'merchant_id=640' or newuser == 640 :
                 df = df[df['merchant_id_course'] == 640]
             elif newuser == 'merchant_id=641' or newuser == 641:
                 df = df[df['merchant_id_course'] == 641]
             elif newuser == 'merchant_id=649' or newuser == 649 :
                 df = df[df['merchant_id_course'] == 649]
-            elif newuser == 'merchant_id=650' or newuser == 650:
+            elif newuser == 'merchant_id=650' or newuser == 650 :
                 df = df[df['merchant_id_course'] == 650]
-            elif newuser == 'merchant_id=651' or newuser == 651:
+            elif newuser == 'merchant_id=651' or newuser == 651 :
                 df = df[df['merchant_id_course'] == 651]
-            elif newuser == 'merchant_id=652' or newuser == 652:
+            elif newuser == 'merchant_id=652' or newuser == 652 :
                 df = df[df['merchant_id_course'] == 652]
             else:
                 df= pd.DataFrame(columns=df.columns)
@@ -359,7 +387,7 @@ def num_delivery(stored_selected_date, selected_city,newuser=None):
 
 
         if df.empty:
-            result = 'non_calculable'
+            result = 0
         else: 
             num_finished_task = len(df)
             result = num_finished_task
@@ -1024,14 +1052,17 @@ def eco_km(stored_selected_date, selected_city, newuser=None ):
             df_geo_task=df_geo_task
             
         if df_geo_task.empty:
-            km_saved = 'non calculable'     
-            km_saved_total= 'non calculable'
-            result = (km_saved, km_saved_total)        
+            km_saved = 0    
+            km_saved_total= 0
+            distance_cycling  = 0  
+            distance_driving = 0  
+            mean_cycling = 0
         else:
             df_geo_task['totalDistance_cycling'] = df_geo_task['distances_cycling_copy'].apply(sum) 
 
             distance_cycling = df_geo_task['totalDistance_cycling'].sum()/1000
             distance_driving = df_geo_task['totalDistance_driving'].sum()/1000
+            mean_cycling = df_geo_task['totalDistance_cycling'].mean()/1000
 
             # calculate the km saved by cycling instead of driving
             if distance_driving > 0:
@@ -1039,14 +1070,14 @@ def eco_km(stored_selected_date, selected_city, newuser=None ):
             else:
                 km_saved = 0
             km_saved_total = round(distance_driving - distance_cycling, 2)
-            result = (km_saved, km_saved_total)
+        result = (km_saved, km_saved_total, round(distance_cycling), round(distance_driving), round(mean_cycling ))
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 39020)
     return result
 
 def time_eco(stored_selected_date, selected_city, newuser=None): 
-
+    cache.delete(f'time_eco_result{stored_selected_date}_{newuser}_{selected_city}')
     cache_key = f'time_eco_result{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
@@ -1222,15 +1253,19 @@ def time_eco(stored_selected_date, selected_city, newuser=None):
             df_geo_task=df_geo_task
             
         if df_geo_task.empty:
-            time_saved = 'non calculable'     
-            time_saved_total= 'non calculable'
-            result = (time_saved, time_saved_total)      
+            time_saved = 0     
+            time_saved_total= 0
+            time_cycling = 0
+            time_driving = 0
+            media_time_cycling = 0
+            result = (time_saved, time_saved_total,time_cycling,time_driving, media_time_cycling )      
         else:
             # summ the total time for cycling and driving
             df_geo_task['durations_cycling_copy'] = df_geo_task['durations_cycling_copy'].apply(lambda x: [x] if isinstance(x, int) else x)
             df_geo_task['durations_driving'] = df_geo_task['durations_driving'].apply(lambda x: [x] if isinstance(x, int) else x)
             time_cycling = sum(val for sublist in df_geo_task['durations_cycling_copy'] if isinstance(sublist, list) for val in sublist)
             time_driving = sum(val for sublist in df_geo_task['durations_driving'] if isinstance(sublist, list) for val in sublist)
+            rounded_time_cycling = round(time_cycling)
 
             # calculate the time saved by cycling instead of driving
             if time_driving > 0:
@@ -1238,7 +1273,17 @@ def time_eco(stored_selected_date, selected_city, newuser=None):
             else:
                 time_saved = 0 
             time_saved_total = round((round(time_driving - time_cycling, 2))/3600,2)
-            result = (time_saved, time_saved_total)
+
+            def sum_list(sublist):
+                if isinstance(sublist, list):
+                    return sum(sublist)
+                return 0  
+
+            df_geo_task['sum_of_durations'] = df_geo_task['durations_cycling_copy'].apply(sum_list)
+
+            media_time_cycling = round(df_geo_task['sum_of_durations'].mean()/60)
+
+            result = (time_saved, time_saved_total, rounded_time_cycling , round(time_driving), media_time_cycling )
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 38020 )
@@ -1761,7 +1806,7 @@ def space_eco(stored_selected_date, selected_city, newuser=None):
     return result
 
 def KPI_CO2(stored_selected_date,selected_city ,newuser=None): 
-
+    cache.delete(f'KPI_CO2{stored_selected_date}_{newuser}_{selected_city}')
     cache_key = f'KPI_CO2{stored_selected_date}_{newuser}_{selected_city}'
     # veryfy if the result is in cache
     cached_result = cache.get(cache_key)
@@ -1772,7 +1817,6 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
         df_geo_task = get_data_cydi()
         df_packages =  get_data_livra()
         df = get_data_id()
-        print(df.columns)
         df_merchants = get_data_merchants()
 
 
@@ -1784,9 +1828,11 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             en = en.tz_localize(df_geo_task['end_date'].dt.tz)
             df_geo_task = df_geo_task[(df_geo_task['end_date'] >= st) & (df_geo_task['end_date'] <= en)]
             df_packages = df_packages[(df_packages['created_at'] >= st) & (df_packages['created_at'] <= en)]
+            df = df[(df['end_date'] >= st) & (df['end_date'] <= en)]
         else: 
             df_geo_task=df_geo_task
             df_packages = df_packages
+            df=df
 
         if selected_city is not None:
 
@@ -1806,16 +1852,18 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
 
             df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
             id_f_task = df_geo_task['id']
+            df = df[df['id_task'].isin(id_f_task)]
             df_packages = df_packages[df_packages['delivery_id'].isin(id_f_task)]
         else: 
             df_geo_task=df_geo_task   
-            df_packages = df_packages  
+            df_packages = df_packages 
+            df=df 
         
         if newuser is not None:
             emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city ,newuser)
             num_delivery_result = num_delivery(stored_selected_date,selected_city,newuser)
-            km_saved, km_saved_total = eco_km(stored_selected_date,selected_city , newuser)
-            time_saved, time_saved_total = time_eco(stored_selected_date, selected_city , newuser)
+            km_saved, km_saved_total, driving, l,m = eco_km(stored_selected_date,selected_city , newuser)
+            time_saved, time_saved_total, d, c, f = time_eco(stored_selected_date, selected_city , newuser)
             SC_s,SC_vul,SC_deki = space_eco(stored_selected_date, selected_city ,newuser)
             if newuser == 'group_id=1' or newuser == 1:
                 merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
@@ -1978,24 +2026,31 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             else:
                 df_geo_task = pd.DataFrame(columns=df_geo_task.columns)
                 df_packages = pd.DataFrame(columns=df_packages.columns)
+                df= pd.DataFrame(columns=df.columns)
         else: 
             df_geo_task = df_geo_task
             df_packages = df_packages
+            df= df
             emi,emi_total,driving,cycling,deki_vul = CO2(stored_selected_date, selected_city )
             num_delivery_result = num_delivery(stored_selected_date, selected_city) 
-            km_saved, km_saved_total = eco_km(stored_selected_date, selected_city )
-            time_saved, time_saved_total = time_eco(stored_selected_date, selected_city )
+            km_saved, km_saved_total, driving,l,m = eco_km(stored_selected_date, selected_city )
+            time_saved, time_saved_total,d,c,f = time_eco(stored_selected_date, selected_city )
             SC_s,SC_vul,SC_deki = space_eco(stored_selected_date, selected_city )
 
         
         if df_geo_task.empty or df_packages.empty :
-            livra_eco_CO2 = 'non calculable' 
-            km_eco_CO2 = 'non calculable'
-            coli_eco_CO2 = 'non calculable'
-            weight_eco_CO2 = 'non calculable'
-            time_eco_CO2 = 'non calculable'
-            congestion_eco_CO2 = 'non calculable'
-            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2)     
+            livra_eco_CO2 = 0
+            km_eco_CO2 = 0
+            coli_eco_CO2 = 0
+            weight_eco_CO2 = 0
+            time_eco_CO2 = 0
+            congestion_eco_CO2 = 0
+            total_colis = 0
+            weight_colis = 0
+            df_colis_detec =pd.DataFrame(columns=df.columns)
+            df_colis=pd.DataFrame(columns=df.columns)
+            df= pd.DataFrame(columns=df.columns)
+            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2, total_colis, weight_colis,df_colis_detec,df_colis, df)     
         else:
             livra_eco_CO2 = round(emi_total/num_delivery_result,3)
             km_eco_CO2 = round(emi_total/km_saved_total,3)
@@ -2125,14 +2180,13 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             df_geo_task['bonbonnes'] = df_geo_task['notes'].apply(lambda x: extract_cartons(x) if pd.notna(x) else None)
             df_geo_task['bonbonnes'] = df_geo_task['bonbonnes'].str.replace(r'\D', '', regex=True).astype(float)
 
-            print(df_packages.columns)
-            
             count_colis = df_packages['delivery_id'].value_counts()
             df_counts_colis = pd.DataFrame({'delivery_id': count_colis.index, 'colis_number': count_colis.values})
             df['delivery_id'] = df_counts_colis['delivery_id'].astype(np.int64)
             df_colis = pd.merge(df_counts_colis, df, right_on='id_task', left_on='delivery_id', how='right', suffixes=('_colis', '_df'))
-            df_colis_detec = df_geo_task[['cartons', 'bidons', 'sceaux','bouteilles', 'sacs', 'bonbonnes']]
-            df_colis_detec['colis_number'] = df_colis_detec.sum(axis=1, skipna=True)
+            df_colis_detec = df_geo_task[['cartons', 'bidons', 'sceaux','bouteilles', 'sacs', 'bonbonnes', 'end_date']]
+            col_num = ['cartons', 'bidons', 'sceaux', 'bouteilles', 'sacs', 'bonbonnes']
+            df_colis_detec['colis_number'] = df_geo_task[col_num].sum(axis=1, skipna=True)
             df_colis_detec['colis_number'] = df_colis_detec['colis_number'].replace(0.0, np.nan)
             df_colis_detec['id'] = df_geo_task['id']
             df_colis = df_colis[df_colis['id_task'].isin(df_geo_task['id'])]
@@ -2194,10 +2248,498 @@ def KPI_CO2(stored_selected_date,selected_city ,newuser=None):
             weight_eco_CO2 = round(emi_total/weight_colis*1000, 3)
             time_eco_CO2 = round(emi_total/time_saved_total, 3)
             congestion_eco_CO2 = round(emi_total/SC_s, 3)
-            print(time_eco_CO2)
-            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2)     
-        
-            
+
+            result = (livra_eco_CO2,km_eco_CO2,coli_eco_CO2,weight_eco_CO2,time_eco_CO2,congestion_eco_CO2,round(total_colis), round(weight_colis),df_colis_detec,df_colis, df)
+
     # save the result in cache
     cache.set(cache_key , result, timeout= 23020 )
+    return result
+
+def graph_line(stored_selected_date,selected_city,newuser=None,season=None): 
+   
+    cache_key = f'graph_line{stored_selected_date}_{newuser}_{selected_city}_{season}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        KPI = KPI_CO2(stored_selected_date,selected_city ,newuser)
+        df_colis_detec = KPI[8]
+        df_colis = KPI[9]
+        df = KPI[10]
+    
+        def convert_to_json(det):
+            data = []
+            for i in range(len(det)):
+                data.append({
+                    'x': det.iloc[i]['date'],
+                    'y': float(det.iloc[i]['count'])
+                })
+            return json.dumps(data, default=str)
+        
+        if df.empty:
+            if season == 'Journalier' or season is None:
+                day_delivery = pd.DataFrame({'date': [0], 'count': [0]})
+                day_delivery_json = convert_to_json(day_delivery)
+                day_colis = pd.DataFrame({'date': [0], 'count': [0]})
+                day_colis_json = convert_to_json(day_colis)
+                day_weight = pd.DataFrame({'date': [0], 'count': [0]})
+                day_weight_json =convert_to_json(day_weight )
+                json_string = pd.DataFrame({'x': [0], 'y': [0]})
+                json_string = json_string.to_json(orient='records')
+                result = (day_delivery_json,day_colis_json,day_weight_json, json_string)
+            elif season == 'Hebdomadaire':
+                week_delivery = pd.DataFrame({'date': [0], 'count': [0]})
+                week_delivery_json = convert_to_json(week_delivery)
+                week_colis = pd.DataFrame({'date': [0], 'count': [0]})
+                week_colis_json = convert_to_json(week_colis)
+                week_weight = pd.DataFrame({'date': [0], 'count': [0]})
+                week_weight_json = convert_to_json(week_weight)
+                json_string = pd.DataFrame({'x': [0], 'y': [0]})
+                json_string = json_string.to_json(orient='records')
+                result = (week_delivery_json,week_colis_json,week_weight_json, json_string)
+            elif season == 'Mensuel':
+                month_delivery = pd.DataFrame({'date': [0], 'count': [0]})
+                month_delivery_json = convert_to_json(month_delivery)
+                month_colis = pd.DataFrame({'date': [0], 'count': [0]})
+                month_colis_json = convert_to_json(month_colis)
+                month_weight = pd.DataFrame({'date': [0], 'count': [0]})
+                month_weight_json = convert_to_json(month_weight)
+                json_string = pd.DataFrame({'x': [0], 'y': [0]})
+                json_string = json_string.to_json(orient='records')
+                result = (month_delivery_json,month_colis_json,month_weight_json,json_string)
+        else:
+            df['end_date']= pd.to_datetime(df['end_date'])
+            df['day_of_week'] = df['end_date'].dt.dayofweek
+            ds_delivery = df['day_of_week'].value_counts().reset_index()
+            ds_delivery.columns = ['day_of_week', 'count']
+            ds_delivery = ds_delivery.sort_values(by='day_of_week')
+            ds_delivery = ds_delivery.reset_index(drop=True)
+
+            name_week_france = {
+                    0: 'Lundi',
+                    1: 'Mardi',
+                    2: 'Mercredi',
+                    3: 'Jeudi',
+                    4: 'Vendredi',
+                    5: 'Samedi',
+                    6: 'Dimanche'
+            }
+
+            ds_delivery['day_of_week_fr'] = ds_delivery['day_of_week'].map(name_week_france)
+            ds_delivery = ds_delivery[['day_of_week_fr', 'count']] 
+
+            json_data = ds_delivery[['day_of_week_fr', 'count']]
+            json_data = json_data.rename(columns={'day_of_week_fr': 'x', 'count': 'y'})
+            json_string = json_data.to_json(orient='records', force_ascii=False)
+            json_string = '[' + json_string[1:-1] + ']'
+
+            if season == 'Journalier' or season is None:
+                df['end_date']= pd.to_datetime(df['end_date'])
+                df['end_date'] = df['end_date'].dt.date
+                day_delivery = df['end_date'].value_counts().reset_index()
+                day_delivery.columns = ['date','count']
+                day_delivery = day_delivery.sort_values(by='date')
+                day_delivery = day_delivery.reset_index(drop=True)
+                day_delivery['count']= day_delivery['count'].cumsum()
+               
+                day_delivery_json = convert_to_json(day_delivery)
+
+                df_colis['colis_number_updated'] = df_colis['colis_number_updated'].fillna(0)
+                day_colis =  df_colis.groupby(df_colis['end_date'].dt.date)['colis_number_updated'].sum().reset_index()
+                day_colis = day_colis[day_colis['colis_number_updated']>0]
+                day_colis.columns = ['date','count']
+                day_colis = day_colis.sort_values(by='date')
+                day_colis = day_colis.reset_index(drop=True)
+                day_colis['count'] = day_colis['count'].cumsum()
+                
+                day_colis_json = convert_to_json(day_colis)
+                
+                df_colis_detec['final_weight_2'] =  df_colis_detec['final_weight_2'].fillna(0)
+                day_weight = df_colis_detec.groupby(df_colis_detec['end_date'].dt.date)['final_weight_2'].sum().reset_index()
+                day_weight = day_weight[day_weight['final_weight_2']>0]
+                day_weight.columns = ['date','count']
+                day_weight = day_weight.sort_values(by='date')
+                day_weight = day_weight.reset_index(drop=True)
+                day_weight['count'] = day_weight['count'].cumsum()
+                
+                day_weight_json = convert_to_json(day_weight)
+
+                result = (day_delivery_json,day_colis_json,day_weight_json,json_string)
+                
+            elif season == 'Hebdomadaire':
+                week_delivery = df.groupby(df['end_date'].dt.to_period('W')).size().reset_index()
+                week_delivery.columns = ['date','count']
+                week_delivery = week_delivery.sort_values(by='date')
+                week_delivery = week_delivery.reset_index(drop=True)
+                week_delivery['count'] = week_delivery['count'].cumsum()
+                
+                week_delivery_json = convert_to_json(week_delivery)
+                
+                df_colis['colis_number_updated'] = df_colis['colis_number_updated'].fillna(0)
+                week_colis = df_colis.groupby(df_colis['end_date'].dt.to_period('W-Mon'))['colis_number_updated'].sum().reset_index()
+                week_colis = week_colis[week_colis['colis_number_updated']>0]
+                week_colis.columns = ['date','count']
+                week_colis = week_colis.sort_values(by='date')
+                week_colis = week_colis.reset_index(drop=True)
+                week_colis['count'] = week_colis['count'].cumsum()
+                
+                week_colis_json = convert_to_json(week_colis)
+                
+                df_colis_detec['final_weight_2'] =  df_colis_detec['final_weight_2'].fillna(0)
+                week_weight = df_colis_detec.groupby(df_colis_detec['end_date'].dt.to_period('W-Mon'))['final_weight_2'].sum().reset_index()
+                week_weight = week_weight[week_weight['final_weight_2']>0]
+                week_weight.columns = ['date','count']
+                week_weight = week_weight.sort_values(by='date')
+                week_weight = week_weight.reset_index(drop=True)
+                week_weight['count'] =week_weight['count'].cumsum()
+
+                week_weight_json = convert_to_json(week_weight)
+                result = (week_delivery_json,week_colis_json,week_weight_json, json_string)
+                
+            elif season == 'Mensuel':
+                month_delivery = df.groupby(df['end_date'].dt.to_period('M')).size().reset_index()
+                month_delivery.columns = ['date','count']
+                month_delivery = month_delivery.sort_values(by='date')
+                month_delivery = month_delivery.reset_index(drop=True)
+                month_delivery['count'] = month_delivery['count'].cumsum()
+                
+                month_delivery_json = convert_to_json(month_delivery)
+                
+                df_colis['colis_number_updated'] = df_colis['colis_number_updated'].fillna(0)
+                month_colis = df_colis.groupby(df_colis['end_date'].dt.to_period('M'))['colis_number_updated'].sum().reset_index()
+                month_colis = month_colis[month_colis['colis_number_updated']>0]
+                month_colis.columns = ['date','count']
+                month_colis = month_colis.sort_values(by='date')
+                month_colis = month_colis.reset_index(drop=True)
+                month_colis['count'] = month_colis['count'].cumsum()
+                
+                month_colis_json = convert_to_json(month_colis)
+                
+                df_colis_detec['final_weight_2'] =  df_colis_detec['final_weight_2'].fillna(0)
+                month_weight = df_colis_detec.groupby(df_colis_detec['end_date'].dt.to_period('M'))['final_weight_2'].sum().reset_index()
+                month_weight = month_weight[month_weight['final_weight_2']>0]
+                month_weight.columns = ['date','count']
+                month_weight = month_weight.sort_values(by='date')
+                month_weight = month_weight.reset_index(drop=True)
+                month_weight['count'] = month_weight['count'].cumsum()
+
+                month_weight_json = convert_to_json(month_weight)
+
+                result = (month_delivery_json,month_colis_json,month_weight_json,json_string)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 22020 )
+    return result
+
+def graph_jk(stored_selected_date,selected_city,newuser=None): 
+
+    cache_key = f'graph_jk{stored_selected_date}_{newuser}_{selected_city}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        KPI = KPI_CO2(stored_selected_date,selected_city ,newuser=None)
+        df_colis_detec = KPI[8]
+        df_colis = KPI[9]
+        df = KPI[10]
+        
+        if df.empty: 
+            j_1 = 0
+            j_0 = 0
+            j_2 = 0
+            k_1 = 0
+            k_2 = 0
+            k_3 = 0
+            k_4 = 0
+            k_5 = 0
+            result = (j_0,j_1,j_2,k_1,k_2,k_3,k_4,k_5)
+        else: 
+            df['created_at_task'] = pd.to_datetime(df['created_at_task'])
+            df['end_date'] = pd.to_datetime(df['end_date'])
+            df['diff_days'] = ((df['start_date'] - df['created_at_task']).dt.total_seconds() / 3600)
+            df['diff_days'] = df['diff_days'].abs()
+            df['created_hour'] = df['created_at_task'].dt.hour
+            df['end_hour'] = df['end_date'].dt.hour
+            def asig(row):
+                if (row['created_hour'] < 9 or row['created_hour'] > 18) and row['diff_days'] <= 24 and (row['end_hour'] >= 8 or row['end_hour'] <= 18):
+                    return 'a'
+                elif (row['created_hour'] >= 9 and row['created_hour'] <= 18) and row['diff_days'] <= 33:
+                    return 'b'
+                elif row['diff_days'] > 33 :
+                    return 'c'
+                return None
+
+            df['retard'] = df.apply(asig, axis=1)
+            a = df['retard'].value_counts()
+
+            if 'a' in a:
+                j_0 = int(a['a'])
+            else:
+                j_0 = 0
+
+            if 'b' in a:
+                j_1 =int(a['b'])
+            else:
+                j_1 = 0
+
+            if 'c' in a:
+                j_2 = int(a['c'])
+            else:
+                j_2 = 0
+
+            df_colis['colis_number_updated'] = df_colis['colis_number_updated'].fillna(0)
+            def kilos(row):
+                if 0 <= row['final_weight_2'] < 5:
+                    return 'a'
+                elif 5 <= row['final_weight_2'] < 40:
+                    return 'b'
+                elif 40 <= row['final_weight_2'] < 150:
+                    return 'c'
+                elif 150 <= row['final_weight_2'] < 300:
+                    return 'd'
+                elif row['final_weight_2'] >= 300:
+                    return 'f'
+                return None
+
+            df_colis_detec['kilos'] = df_colis_detec.apply(kilos, axis=1)
+            b = df_colis_detec['kilos'].value_counts()
+
+            if 'a' in b:
+                k_1 = int(b['a'])
+            else:
+                k_1 = 0
+
+            if 'b' in b:
+                k_2 = int(b['b'])
+            else:
+                k_2 = 0
+
+            if 'c' in b:
+                k_3 = int(b['c'])
+            else:
+                k_3 = 0
+
+            if 'd' in b:
+                k_4 = int(b['d'])
+            else:
+                k_4 = 0
+
+            if 'f' in b:
+                k_5 = int(b['f'])
+            else:
+                k_5 = 0
+
+            result = (j_0,j_1,j_2,k_1,k_2,k_3,k_4,k_5)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 21020 )
+    return result
+
+def livra_state(stored_selected_date, selected_city,newuser=None):
+    
+    cache_key = f'livra_state{stored_selected_date}_{newuser}_{selected_city}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        df_tasks = get_data_task()
+        df_geo_task = get_data_cydi()
+        df_courses = get_data_courses()
+        df_merchants = get_data_merchants()
+        df_task = pd.merge(df_courses, df_tasks, right_on='course_id', left_on='id', how='inner', suffixes=('_course', '_task'))
+        merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+        merchant_trd = merchant_trd[['id']]
+        merchant_id = df_merchants[~df_merchants['id'].isin([19, 20, 54, 77, 63, 85, 21, 37, 66, 645, 646, 603, 624, 628,
+                                                                    647, 112, 83, 632, 648,70, 44, 39,
+                                                                    32, 43, 45, 102, 26, 61, 27, 33, 36, 87, 75, 78, 105, 
+                                                                    200, 625, 629, 642, 626, 636, 8, 247, 238, 
+                                                                    643, 627, 631, 637, 638, 340, 123, 320, 639, 480, 402, 29, 
+                                                                    282, 141, 151, 154, 159, 305, 307, 335, 345, 125, 317, 359, 
+                                                                    385, 394, 414, 432, 441, 446, 544, 518, 530, 392, 559, 565, 
+                                                                    287, 572, 352, 574, 591, 279, 403, 583, 49, 364, 148, 569, 
+                                                                    128, 324, 597, 437, 533, 376, 331, 620, 274, 621, 602, 622, 623, 31,
+                                                                    604,608,663])]
+        merchant_id = merchant_id[['id']]
+
+        df_task  = df_task.sort_values(by='end_date', ascending=False)
+        df_task['end_date'] = pd.to_datetime(df_task['end_date'])
+        df_task = df_task.dropna(subset=['end_date'])
+        df_task  = df_task[df_task['type'] != "collecte"]
+        merchant_trd_ids = merchant_trd['id'].tolist()
+        merchant_id_ids = merchant_id['id'].tolist()
+        df_task  = df_task[(df_task['created_by_id'] == 1) | (df_task['merchant_id_course'].isin(merchant_trd_ids)) | (df_task['merchant_id_course'].isin(merchant_id_ids))]
+        df_task  = df_task.dropna(subset=['merchant_id_course'])
+        df_task  = df_task[~df_task['merchant_id_course'].isin([8,200,604])]
+        
+        if selected_city is not None:
+            def city_to_id(selected_city):
+                city_mapping = {
+                    'marseille': '13',
+                    'lyon': '69',
+                    'lille': '59',
+                    'paris': '75',
+                    'bordeaux': '33',
+                    'toulouse': '31',
+                    'dijon': '21',  # Ensure 'dijon' is lowercase for consistency
+                }
+                return [city_mapping.get(city.lower(), None) for city in selected_city]
+            
+            city_id = city_to_id(selected_city)
+            df_geo_task = df_geo_task[df_geo_task['id_city'].isin(city_id)]
+            id_f_task = df_geo_task['id']
+            df_task = df_task[df_task['id_task'].isin(id_f_task)]
+        else: 
+            df_task=df_task
+
+        if newuser is not None:
+            if newuser == 'group_id=1' or newuser == 1:
+                merchant_trd = df_merchants[df_merchants['group_0_id'] == 1]
+                merchant_trd = merchant_trd[['id']]
+                merchant_trd_ids = merchant_trd['id'].tolist()
+                df_task  = df_task[df_task['merchant_id_course'].isin(merchant_trd_ids)]
+            elif newuser == 'team_id=2' or newuser == 2 :
+                df_task = df_task[df_task['team_id'] == 2]
+            elif newuser == 'team_id=3' or newuser == 3 :
+                df_task = df_task[df_task['team_id'] == 3]
+            elif newuser == 'team_id=4' or newuser == 4 : 
+                df_task  = df_task[df_task['team_id'] == 4]
+            elif newuser == 'team_id=6' or newuser == 6:
+                df_task = df_task[df_task['team_id'] == 6]
+            elif newuser == 'team_id=9' or newuser == 9 :
+                df_task  = df_task[df_task['team_id'] == 9]
+            elif newuser == 'team_id=10' or newuser == 10 :
+                df_task  = df_task[df_task['team_id'] == 10]
+            elif newuser == 'team_id=11' or newuser == 11 :
+                df_task  = df_task[df_task['team_id'] == 11]
+            elif newuser == 'team_id=13' or newuser == 13 :
+                df_task  = df_task[df_task['team_id'] == 13]
+            elif newuser == 'team_id=14' or newuser == 14:
+                df_task  = df_task[df_task['team_id'] == 14]
+            elif newuser == 'team_id=15' or newuser == 15 :
+                df_task  = df_task[df_task['team_id'] == 15]
+            elif newuser == 'team_id=16' or newuser == 16 :
+                df_task  = df_task[df_task['team_id'] == 16]
+            elif newuser == 'team_id=17' or newuser == 17 :
+                df_task = df_task[df_task['team_id'] == 17]
+            elif newuser == 'team_id=18' or newuser == 18 :
+                df_task  = df_task[df_task['team_id'] == 18]
+            elif newuser == 'team_id=19' or newuser == 19 :
+                df_task  = df_task[df_task['team_id'] == 19]
+            elif newuser == 'team_id=20' or newuser == 20 :
+                df_task  = df_task[df_task['team_id'] == 20]
+            elif newuser == 'team_id=22' or newuser == 22:
+                df_task  = df_task[df_task['team_id'] == 22]
+            elif newuser == 'merchant_id=606' or newuser == 606 :
+                df_task = df_task[df_task['merchant_id_course'] == 606]
+            elif newuser == 'merchant_id=605' or newuser == 605 :
+                df_task  = df_task[df_task['merchant_id_course'] == 605]
+            elif newuser == 'merchant_id=607' or newuser == 607 :
+                 df_task  = df_task[df_task['merchant_id_course'] == 607]
+            elif newuser == 'merchant_id=609' or newuser == 609 :
+                df_task  = df_task[df_task['merchant_id_course'] == 609]
+            elif newuser == 'merchant_id=610' or newuser == 610 :
+                df_task  = df_task[df_task['merchant_id_course'] == 610]
+            elif newuser == 'merchant_id=617' or newuser == 617 :
+                df_task = df_task[df_task['merchant_id_course'] == 617]
+            elif newuser == 'merchant_id=630' or newuser == 630 :
+                df_task  = df_task[df_task['merchant_id_course'] == 630]
+            elif newuser == 'merchant_id=635' or newuser == 635 :
+                df_task  = df_task[df_task['merchant_id_course'] == 635]
+            elif newuser == 'merchant_id=640' or newuser == 640 :
+                df_task  = df_task[df_task['merchant_id_course'] == 640]
+            elif newuser == 'merchant_id=641' or newuser == 641:
+                df_task  = df_task[df_task['merchant_id_course'] == 641]
+            elif newuser == 'merchant_id=649' or newuser == 649 :
+                df_task  = df_task[df_task['merchant_id_course'] == 649]
+            elif newuser == 'merchant_id=650' or newuser == 650 :
+                df_task  = df_task[df_task['merchant_id_course'] == 650]
+            elif newuser == 'merchant_id=651' or newuser == 651 :
+                df_task  = df_task[df_task['merchant_id_course'] == 651]
+            elif newuser == 'merchant_id=652' or newuser == 652 :
+                df_task  = df_task[df_task['merchant_id_course'] == 652]
+            else:
+                df_task= pd.DataFrame(columns=df_task.columns)
+        else:
+            df_task=df_task
+        
+
+        if stored_selected_date is not None:
+            st, en = stored_selected_date.strip('()[]').split(' to ')
+            st = pd.to_datetime(st, format='%d/%m/%Y')
+            en = pd.to_datetime(en, format='%d/%m/%Y')
+            df_task['end_date'] = pd.to_datetime(df_task['end_date'])
+            st = st.tz_localize(df_task['end_date'].dt.tz)
+            en = en.tz_localize(df_task['end_date'].dt.tz)
+            df_task = df_task[(df_task['end_date'] >= st) & (df_task['end_date'] <= en)]
+        else: 
+            df_task = df_task
+
+        if df_task.empty:
+            num_0 = 0
+            num_1 = 0
+            num_2 = 0 
+            num_3 = 0
+            num_4 = 0
+            result = (num_0, num_1, num_2, num_3, num_4)
+        else: 
+            df_task_1 = df_task['state_task'].dropna()
+            a = df_task_1.value_counts()
+            
+            if 0 in a:
+                num_0 = int(a[0])
+            else:
+                num_0 = 0
+
+            if 1 in a:
+                num_1 = int(a[1])
+            else:
+                num_1 = 0
+
+            if 2 in a:
+                num_2 = int(a[2])
+            else:
+                num_2 = 0
+
+            if 3 in a:
+                num_3 = int(a[3])
+            else:
+                num_3 = 0
+
+            if 4 in a:
+                num_4 = int(a[4])
+            else:
+                num_4 = 0
+        
+            result = (num_0, num_1, num_2, num_3, num_4)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout=41020)
+    return result
+
+def KPI_livra(stored_selected_date,selected_city,newuser=None): 
+   
+    cache_key = f'KPI_livra{stored_selected_date}_{newuser}_{selected_city}'
+    # veryfy if the result is in cache
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+    else:
+        KPI = KPI_CO2(stored_selected_date,selected_city ,newuser)
+        df_colis_detec = KPI[8]
+        df_colis = KPI[9]
+        
+        if df_colis.empty:
+            colis_m = 0
+            weight = 0
+            result = (colis_m, weight)
+        else:
+            colis_m = round(df_colis['colis_number_updated'].mean())
+            weight = round(df_colis_detec['final_weight_2'].mean())
+            result = (colis_m, weight)
+
+    # save the result in cache
+    cache.set(cache_key , result, timeout= 33020 )
     return result

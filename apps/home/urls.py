@@ -9,9 +9,6 @@ from apps.home import views
 urlpatterns = [
 
     # The home page
-    path('<str:newuser>', views.index, name='home'),
-
-    
-    # Matches any html file
-    re_path(r'^(?P<new_user>.+)\.html', views.pages, name='pages'),
+    path('<str:newuser>', views.BasePageView.as_view(), name='home'),
+    path("", views.BasePageView.as_view(), name='home'),
 ]
