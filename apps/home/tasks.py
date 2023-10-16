@@ -1265,7 +1265,7 @@ def time_eco(stored_selected_date, selected_city, newuser=None):
             df_geo_task['durations_driving'] = df_geo_task['durations_driving'].apply(lambda x: [x] if isinstance(x, int) else x)
             time_cycling = sum(val for sublist in df_geo_task['durations_cycling_copy'] if isinstance(sublist, list) for val in sublist)
             time_driving = sum(val for sublist in df_geo_task['durations_driving'] if isinstance(sublist, list) for val in sublist)
-            rounded_time_cycling = round(time_cycling)
+            rounded_time_cycling = round(time_cycling/3600)
 
             # calculate the time saved by cycling instead of driving
             if time_driving > 0:
@@ -1283,7 +1283,7 @@ def time_eco(stored_selected_date, selected_city, newuser=None):
 
             media_time_cycling = round(df_geo_task['sum_of_durations'].mean()/60)
 
-            result = (time_saved, time_saved_total, rounded_time_cycling , round(time_driving), media_time_cycling )
+            result = (time_saved, time_saved_total, rounded_time_cycling , round(time_driving/3600), media_time_cycling )
 
     # save the result in cache
     cache.set(cache_key , result, timeout= 38020 )
