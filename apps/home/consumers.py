@@ -132,7 +132,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             'value1' : economi_km[4],
             'value2' : time_eco_e[4], 
             'value3' : KPI_l[1],
-            'value4' : KPI_l[0],
+            'value4' : KPI_l[0], 
         }
 
 
