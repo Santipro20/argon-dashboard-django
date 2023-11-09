@@ -7,6 +7,7 @@ import copy
 import re
 import json
 from statistics import mean
+import requests
 
 
 def get_data_id():
