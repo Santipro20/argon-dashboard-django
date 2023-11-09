@@ -21,3 +21,4 @@ django-redis==5.0.0
 googlemaps==4.2.0
 simplejson==3.19.1
 channels-redis==4.1.0
+django-environ==0.11.2

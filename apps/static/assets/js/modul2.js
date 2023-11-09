@@ -29,9 +29,9 @@ $(document).ready(function() {
 		
         if (isActivePage) {
            
-            value0 = JSON.parse(updatedData.value0);
-            value1 = JSON.parse(updatedData.value1);
-            value2 = JSON.parse(updatedData.value2);
+            value0 = JSON.parse(updatedData.value5);
+            value1 = JSON.parse(updatedData.value6);
+            value2 = JSON.parse(updatedData.value7);
             
             updateLineChart();
         }

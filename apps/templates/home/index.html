@@ -8,6 +8,7 @@
 {% block content %}
 
     <!-- Header -->
+    <div id="indexPage" class="page active">
     <div class="header bg-primary pb-6">
       <div class="container-fluid">
         <div class="header-body">
@@ -572,6 +573,7 @@
       {% include "includes/footer.html" %}
 
     </div>
+  </div>
 
 {% endblock content %}
 
@@ -613,7 +615,14 @@
     window.temps = {{temps|safe}}
 
     console.log("Valor de nu:", window.newuserf );
+    const indexPageActive = document.querySelector("#indexPage.active");
 
+    if (indexPageActive) {
+      var data = '{"val":"page1"}';
+      var obj = JSON.parse(data);
+      window.page_gg = obj;
+    }
+    console.log("Valor de :", window.page_gg );
 
   </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>

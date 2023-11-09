@@ -15,6 +15,8 @@ function sendFiltersDataToServer(selectedDate, selectedCity, selectedPeriod) {
   // Get the 'nuevonombre' from the URL
   var newuser = window.newuserf;
   var new_user = window.newuserh;
+  var pagi_ac = window.page_gg;
+
 
   // Create an object with the selected date, cities, and 'nuevonombre'
   const messageData = {
@@ -24,6 +26,7 @@ function sendFiltersDataToServer(selectedDate, selectedCity, selectedPeriod) {
     newuser: newuser || null,
     new_user: new_user || null,
     selected_period: selectedPeriod, 
+    current_page : pagi_ac,
   };
 
   console.log("Mensaje enviado al servidor:", messageData);
